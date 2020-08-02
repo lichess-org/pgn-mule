@@ -23,5 +23,7 @@ add <name> <source-url> <delay-seconds>
 list
 remove <name>
 addMany 1,2,3,4,5,6,7 <name>{} <url>-{}.pgn <delay-seconds>
-
+addReplacement {"oldContent": "username", "newContent": "Name, Real 007"}
+listReplacements
+delReplacement 0
 ```
