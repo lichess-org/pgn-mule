@@ -18,4 +18,6 @@ In slack
 add <name> <source-url> <delay-seconds>
 list
 remove <name>
+addMany 1,2,3,4,5,6,7 <name>{} <url>-{}.pgn <delay-seconds>
+
 ```
