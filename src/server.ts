@@ -282,7 +282,7 @@ let getReplacements = async () => {
 let replace = async (pgn: string) => {
   let replacements = await getReplacements();
   return replacements.reduce((current, r) => {
-    return current.replace(r.oldContent, r.newContent);
+    return current.replace(new RegExp(r.oldContent, "g"), r.newContent);
   }, pgn);
 };
 let addReplacement = async (event: any, replacementString: string) => {
