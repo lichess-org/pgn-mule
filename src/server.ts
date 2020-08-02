@@ -48,8 +48,15 @@ const web = new WebClient(token);
 const redisClient = createHandyClient();
 
 //------------------------------------------------------------------------------
+// A struct to keep timeouts
+let timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
+
+//------------------------------------------------------------------------------
 // Global functions
 let pollURL = async (name: string) => {
+  let timeoutId = timeouts[name];
+  if (notEmpty(timeoutId)) clearTimeout(timeoutId);
+  timeouts[name] = undefined;
   let source = await getSource(name);
   if (source === undefined) return;
   request(
@@ -118,7 +125,7 @@ let pollURL = async (name: string) => {
             );
           }
         }
-        setTimeout(() => pollURL(name), delay);
+        timeouts[name] = setTimeout(() => pollURL(name), delay);
       }
     }
   );
