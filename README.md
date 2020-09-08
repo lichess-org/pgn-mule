@@ -32,3 +32,8 @@ delReplacement 0
 QueryString Options:
 --------------------
 For a given url, add in: `?shredder=1` which will convert X-Fen to Shredder-Fen
+
+Custom Round Tags
+--------------------
+For a given url, add in: `?roundbase=1.{}` and the games will have their 1.{}
+replace with 1.1, 1.2, 1.3 ...
