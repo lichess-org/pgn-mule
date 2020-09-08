@@ -27,3 +27,8 @@ addReplacement {"oldContent": "username", "newContent": "Name, Real 007"}
 listReplacements
 delReplacement 0
 ```
+
+
+QueryString Options:
+--------------------
+For a given url, add in: `?shredder=1` which will convert X-Fen to Shredder-Fen
