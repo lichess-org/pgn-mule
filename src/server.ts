@@ -447,7 +447,6 @@ rtm.on("unable_to_rtm_start", (error) => {
     );
 
     if (ctx.query.shredder === "1") {
-      console.log(ctx.query);
       pgn = toShredder(pgn);
     }
 
