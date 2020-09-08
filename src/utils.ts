@@ -1,3 +1,5 @@
+import { Chess } from "chess.js";
+
 export interface Source {
   url: string;
   name: string;
@@ -68,4 +70,14 @@ export function toShredder(fen: string) {
     .replace(/(\/R\w\w\wR\w\w\w w) KQkq/g, "$1 EAea")
     .replace(/(\/R\w\wR\w\w\w\w w) KQkq/g, "$1 DAda")
     .replace(/(\/R\wR\w\w\w\w\w w) KQkq/g, "$1 CAca");
+}
+
+// chess 24 round numbers.
+export function chess24Rounds(pgns: string[], roundbase: string): string[] {
+  return pgns.map((pgn, i) => {
+    let chess = new Chess();
+    chess.load_pgn(pgn);
+    chess.header("Round", roundbase.replace("{}", (i + 1).toString()));
+    return chess.pgn();
+  });
 }
