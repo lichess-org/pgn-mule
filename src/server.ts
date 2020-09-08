@@ -343,7 +343,7 @@ rtm.on("message", async (event) => {
       console.log(`Processing addMany command ${parts}`);
       await addMany(parts, event);
     } else if (
-      isCommand(command, ["remove", "rm", "del"]) &&
+      isCommand(command, ["remove", "rm", "del", "stop"]) &&
       parts.length == 2
     ) {
       console.log(`Processing remove command ${parts}`);
