@@ -44,3 +44,28 @@ export let dbg = <T>(v: T) => {
   return v;
 };
 
+// only for chess960 starting fens
+export function toShredder(fen: string) {
+  return fen
+    .replace(/(\/\w\w\w\w\wR\wR w) KQkq/, "$1 HFhf")
+    .replace(/(\/\w\w\w\wR\w\wR w) KQkq/, "$1 HEhe")
+    .replace(/(\/\w\w\w\wR\wR\w w) KQkq/, "$1 GEge")
+    .replace(/(\/\w\w\wR\w\w\wR w) KQkq/, "$1 HDhd")
+    .replace(/(\/\w\w\wR\w\wR\w w) KQkq/, "$1 GDgd")
+    .replace(/(\/\w\w\wR\wR\w\w w) KQkq/, "$1 FDfd")
+    .replace(/(\/\w\wR\w\w\w\wR w) KQkq/, "$1 HChc")
+    .replace(/(\/\w\wR\w\w\wR\w w) KQkq/, "$1 GCgc")
+    .replace(/(\/\w\wR\w\wR\w\w w) KQkq/, "$1 FCfc")
+    .replace(/(\/\w\wR\wR\w\w\w w) KQkq/, "$1 ECec")
+    .replace(/(\/\wR\w\w\w\w\wR w) KQkq/, "$1 HBhb")
+    .replace(/(\/\wR\w\w\w\wR\w w) KQkq/, "$1 GBgb")
+    .replace(/(\/\wR\w\w\wR\w\w w) KQkq/, "$1 FBfb")
+    .replace(/(\/\wR\w\wR\w\w\w w) KQkq/, "$1 EBeb")
+    .replace(/(\/\wR\wR\w\w\w\w w) KQkq/, "$1 DBdb")
+    .replace(/(\/R\w\w\w\w\w\wR w) KQkq/, "$1 HAha")
+    .replace(/(\/R\w\w\w\w\wR\w w) KQkq/, "$1 GAga")
+    .replace(/(\/R\w\w\w\wR\w\w w) KQkq/, "$1 FAfa")
+    .replace(/(\/R\w\w\wR\w\w\w w) KQkq/, "$1 EAea")
+    .replace(/(\/R\w\wR\w\w\w\w w) KQkq/, "$1 DAda")
+    .replace(/(\/R\wR\w\w\w\w\w w) KQkq/, "$1 CAca");
+}
