@@ -13,6 +13,7 @@ import {
   Replacement,
   isCommand,
   dbg,
+  toShredder,
 } from "./utils";
 import Koa from "koa";
 import Router from "@koa/router";
@@ -444,6 +445,11 @@ rtm.on("unable_to_rtm_start", (error) => {
         .map((s) => s.pgn)
         .join("\n\n")
     );
+
+    if (ctx.query.shredder === "1") {
+      console.log(ctx.query);
+      pgn = toShredder(pgn);
+    }
 
     ctx.body = pgn;
     ctx.status = 200;
