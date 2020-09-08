@@ -14,6 +14,7 @@ import {
   isCommand,
   dbg,
   toShredder,
+  chess24Rounds,
 } from "./utils";
 import Koa from "koa";
 import Router from "@koa/router";
@@ -343,7 +344,7 @@ rtm.on("message", async (event) => {
       console.log(`Processing addMany command ${parts}`);
       await addMany(parts, event);
     } else if (
-      isCommand(command, ["remove", "rm", "del"]) &&
+      isCommand(command, ["remove", "rm", "del", "stop"]) &&
       parts.length == 2
     ) {
       console.log(`Processing remove command ${parts}`);
@@ -438,13 +439,11 @@ rtm.on("unable_to_rtm_start", (error) => {
         return setSource(s);
       })
     );
-
-    let pgn = await replace(
-      sources
-        .filter(notEmpty)
-        .map((s) => s.pgn)
-        .join("\n\n")
-    );
+    let pgns = sources.filter(notEmpty).map((s) => s.pgn);
+    if (notEmpty(ctx.query.roundbase)) {
+      pgns = chess24Rounds(pgns, ctx.query.roundbase);
+    }
+    let pgn = await replace(pgns.join("\n\n"));
 
     if (ctx.query.shredder === "1") {
       pgn = toShredder(pgn);

@@ -86,6 +86,11 @@
   resolved "https://registry.yarnpkg.com/@types/caseless/-/caseless-0.12.2.tgz#f65d3d6389e01eeb458bd54dc8f52b95a9463bc8"
   integrity sha512-6ckxMjBBD8URvjB6J3NcnuAn5Pkl7t3TizAg+xdlzzQGSPSmBcXf8KoIH0ua/i+tio+ZRUHEXp0HEmvaR4kt0w==
 
+"@types/chess.js@^0.10.1":
+  version "0.10.1"
+  resolved "https://registry.yarnpkg.com/@types/chess.js/-/chess.js-0.10.1.tgz#441f0c379ef6d37e3991dcbf3d5db00b44fdb891"
+  integrity sha512-cuFMyrUYOWpKm5PRayvk22jLV3BOuWs7iJ7Q4PZJXMWoF7uhjWEojMS4GPk441gn4Ki9BHxbKsll7mrwJ3KT3g==
+
 "@types/connect@*":
   version "3.4.32"
   resolved "https://registry.yarnpkg.com/@types/connect/-/connect-3.4.32.tgz#aa0e9616b9435ccad02bc52b5b454ffc2c70ba28"
@@ -592,6 +597,11 @@ chalk@^3.0.0:
   dependencies:
     ansi-styles "^4.1.0"
     supports-color "^7.1.0"
+
+chess.js@^0.11.0:
+  version "0.11.0"
+  resolved "https://registry.yarnpkg.com/chess.js/-/chess.js-0.11.0.tgz#e1802179b944eab5daf11b5d4bce08cdcadbeffa"
+  integrity sha512-yTpi6XbRMkBtnjSvbt6wEp9Y7JzhJl1MC3GNn67q5ClyccXxCRf5cMPSUg4OblrUapg1kLHm7WzxxEVp20NK1Q==
 
 chokidar@^2.1.8:
   version "2.1.8"
