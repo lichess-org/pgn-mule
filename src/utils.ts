@@ -1,5 +1,3 @@
-import { Chess } from "chess.js";
-
 export interface Source {
   url: string;
   name: string;
@@ -75,9 +73,27 @@ export function toShredder(fen: string) {
 // chess 24 round numbers.
 export function chess24Rounds(pgns: string[], roundbase: string): string[] {
   return pgns.map((pgn, i) => {
-    let chess = new Chess();
-    chess.load_pgn(pgn);
-    chess.header("Round", roundbase.replace("{}", (i + 1).toString()));
-    return chess.pgn();
+    let roundValue = roundbase.replace("{}", (i + 1).toString());
+    let roundHeader = `[Round ${roundValue}]`;
+    let seenMoves = false;
+    return pgn
+      .split("\n")
+      .filter((line) => !line.trim().startsWith("[Round"))
+      .map((line) => {
+        if (line.trim().startsWith("[")) {
+          seenMoves = false;
+          return line;
+        }
+        if (line.trim().startsWith("1.")) {
+          seenMoves = true;
+          return line;
+        }
+        if (!line.trim() && !seenMoves) {
+          return `${roundHeader}\n`;
+        } else {
+          return line;
+        }
+      })
+      .join("\n");
   });
 }
