@@ -68,6 +68,7 @@ let pollURL = async (name: string) => {
         Cookie: cookie,
         "User-Agent": userAgent,
       },
+      rejectUnauthorized: false,
     },
     async (err, res, body) => {
       let source = await getSource(name);
