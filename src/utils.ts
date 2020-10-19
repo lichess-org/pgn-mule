@@ -5,6 +5,7 @@ export interface Source {
   name: string;
   delay: number;
   pgn: string;
+  insecure: boolean;
   dateLastPolled: Date;
   dateLastUpdated: Date;
 }

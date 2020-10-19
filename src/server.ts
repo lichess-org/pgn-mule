@@ -68,7 +68,7 @@ let pollURL = async (name: string) => {
         Cookie: cookie,
         "User-Agent": userAgent,
       },
-      rejectUnauthorized: false,
+      rejectUnauthorized: !source.insecure,
     },
     async (err, res, body) => {
       let source = await getSource(name);
@@ -172,6 +172,7 @@ let sourceFromJSON = (s: string): Source => {
     name: d.name,
     delay: d.delay,
     pgn: d.pgn,
+    insecure: d.insecure,
     dateLastPolled: new Date(d.dateLastPolled),
     dateLastUpdated: new Date(d.dateLastUpdated),
   };
@@ -239,6 +240,10 @@ let addOrSet = async (
   if (url.endsWith(">")) {
     url = url.slice(0, url.length - 1);
   }
+  const insecure = url.startsWith("insecure-https://");
+  if (insecure) {
+    url = url.substr("insecure-".length);
+  }
   if (!isURL(url)) {
     say(`${url} is not a valid URL`, event.channel);
     console.log(`${url} is not a valid url`);
@@ -247,6 +252,7 @@ let addOrSet = async (
   let source = {
     name,
     url,
+    insecure,
     delay,
     pgn: "",
     dateLastPolled: new Date(),
