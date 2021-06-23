@@ -17,8 +17,6 @@
   },
   "dependencies": {
     "@koa/router": "^8.0.2",
-    "@slack/rtm-api": "^5.0.3",
-    "@slack/web-api": "^5.4.0",
     "@types/chess.js": "^0.10.1",
     "@types/koa__router": "^8.0.1",
     "chess.js": "^0.11.0",
@@ -31,6 +29,7 @@
     "redis": "^2.8.0",
     "request": "^2.88.0",
     "typeorm": "^0.2.20",
-    "validator": "^12.0.0"
+    "validator": "^12.0.0",
+    "zulip-js": "^2.0.9"
   }
 }
