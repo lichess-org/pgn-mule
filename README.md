@@ -1,5 +1,6 @@
 Merge, filter, tweak and expose PGN sources.
 
+**To be replaced with https://github.com/lichess-org/python-zulip-api/tree/master/zulip_bots/zulip_bots/bots/pgn_mule**
 
 ## Usage
 
@@ -18,6 +19,7 @@ yarn start
 ```
 
 In slack
+
 ```
 add <name> <source-url> <delay-seconds>
 list
@@ -28,12 +30,11 @@ listReplacements
 delReplacement 0
 ```
 
+## QueryString Options:
 
-QueryString Options:
---------------------
 For a given url, add in: `?shredder=1` which will convert X-Fen to Shredder-Fen
 
-Custom Round Tags
---------------------
+## Custom Round Tags
+
 For a given url, add in: `?roundbase=1.{}` and the games will have their 1.{}
 replace with 1.1, 1.2, 1.3 ...
