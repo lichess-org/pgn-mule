@@ -1,24 +1,14 @@
 Merge, filter, tweak and expose PGN sources.
 
-**To be replaced with https://github.com/lichess-org/python-zulip-api/tree/master/zulip_bots/zulip_bots/bots/pgn_mule**
-
 ## Usage
 
 ```
-yarn install --dev
-echo 'export PGN_MULE_COOKIE="..."' > .env
-echo 'export PUBLIC_PORT="3000"' > .env
-echo 'export PUBLIC_IP="127.0.0.1"' > .env
-echo 'export PUBLIC_SCHEME="http"' > .env
-echo 'export SLACK_BOT_TOKEN="..."' > .env
-echo 'export DEFAULT_CHANNEL="..."' > .env
-echo 'export SLOW_POLL_RATE_SECONDS="..."' > .env
-echo 'export MINUTES_INACTIVITY_SLOWDOWN="..."' > .env
-echo 'export MINUTES_INACTIVITY_DIE="..."' > .env
+# edit .env
+yarn install
 yarn start
 ```
 
-In slack
+In zulip
 
 ```
 add <name> <source-url> <delay-seconds>
