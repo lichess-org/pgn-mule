@@ -28,7 +28,7 @@ export function envOrDie(name: string): string {
   return token;
 }
 
-export let isCommand = (c: string, patterns: string[]) => {
+export const isCommand = (c: string, patterns: string[]) => {
   return patterns.some(p => c === p);
 };
 
@@ -39,7 +39,7 @@ export interface Replacement {
 
 export type Replacements = Replacement[];
 
-export let dbg = <T>(v: T) => {
+export const dbg = <T>(v: T) => {
   console.log(v);
   return v;
 };
@@ -73,7 +73,7 @@ export function toShredder(fen: string) {
 // chess 24 round numbers.
 export function chess24Rounds(pgns: string[], roundbase: string): string[] {
   return pgns.map((pgn, i) => {
-    let chess = new Chess();
+    const chess = new Chess();
     chess.load_pgn(pgn);
     chess.header('Round', roundbase.replace('{}', (i + 1).toString()));
     return chess.pgn();

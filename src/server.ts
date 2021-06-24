@@ -20,7 +20,7 @@ import Router from '@koa/router';
 import { promisify } from 'util';
 import { differenceInSeconds } from 'date-fns';
 
-let sleep = promisify(setTimeout);
+const sleep = promisify(setTimeout);
 
 configDotEnv();
 
@@ -44,7 +44,7 @@ const redisClient = createHandyClient();
 
 //------------------------------------------------------------------------------
 // A struct to keep timeouts
-let timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
+const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
 
 (async () => {
   const z = await zulip({
@@ -54,13 +54,13 @@ let timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
   });
 
   const getSources = async () => {
-    let keys = await redisClient.keys('pgnmule:*');
+    const keys = await redisClient.keys('pgnmule:*');
     console.log(`Got ${keys.length} sources: ${JSON.stringify(keys)}`);
     return (await Promise.all(keys.map(k => redisClient.get(k)))).filter(notEmpty).map(sourceFromJSON);
   };
   const clearAllSources = async (messageId: number) => {
     console.log(`Clearing all sources`);
-    let sources = await getSources();
+    const sources = await getSources();
     sources.forEach(async s => {
       console.log(`Clearing source: ${s.name}`);
       await removeSource(s.name);
@@ -77,10 +77,10 @@ let timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
   };
 
   const pollURL = async (name: string) => {
-    let timeoutId = timeouts[name];
+    const timeoutId = timeouts[name];
     if (notEmpty(timeoutId)) clearTimeout(timeoutId);
     timeouts[name] = undefined;
-    let source = await getSource(name);
+    const source = await getSource(name);
     if (source === undefined) return;
     request(
       {
@@ -91,11 +91,11 @@ let timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
         },
       },
       async (err, res, body) => {
-        let source = await getSource(name);
+        const source = await getSource(name);
         if (source === undefined) return;
         if (body && !err && res.statusCode === 200) {
           source.pgn = body;
-          let allGames = body.split('[Event').filter((g: string) => !!g);
+          const allGames = body.split('[Event').filter((g: string) => !!g);
           console.log(`[${name}]: Got ${allGames.length} games (${body.length} bytes)`);
         } else if (!body) {
           console.log(`[${name}]: Empty response`);
@@ -140,12 +140,10 @@ let timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
   };
 
   const react = async (name: string, messageId: number) =>
-    console.log(
-      await z.reactions.add({
-        message_id: messageId,
-        emoji_name: name,
-      })
-    );
+    await z.reactions.add({
+      message_id: messageId,
+      emoji_name: name,
+    });
 
   const removeSource = async (name: string) => {
     await redisClient.del(`pgnmule:${name}`);
@@ -160,32 +158,28 @@ let timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
   };
 
   const sourceFromJSON = (s: string): Source => {
-    let d = JSON.parse(s);
+    const d = JSON.parse(s);
     return {
-      url: d.url,
-      name: d.name,
-      delay: d.delay,
-      pgn: d.pgn,
+      ...d,
       dateLastPolled: new Date(d.dateLastPolled),
       dateLastUpdated: new Date(d.dateLastUpdated),
     };
   };
 
-  let getSource = async (name: string) => {
-    let value = await redisClient.get(`pgnmule:${name}`);
+  const getSource = async (name: string) => {
+    const value = await redisClient.get(`pgnmule:${name}`);
     if (!value) return undefined;
     return sourceFromJSON(value);
   };
 
-  let formatSource = (s: Source) =>
+  const formatSource = (s: Source) =>
     `${s.name}: ${s.url} / ${s.delay}s -> ${publicScheme}://${publicIP}:${publicPort}/${s.name}`;
 
-  let formatManySources = (sources: Source[]) =>
+  const formatManySources = (sources: Source[]) =>
     `all of them -> ${publicScheme}://${publicIP}:${publicPort}/${sources.map(s => s.name).join('/')}`;
 
-  let list = async () => {
-    let message = (await getSources()).map(formatSource).join('\n');
-    message = message || 'No current urls';
+  const list = async () => {
+    const message = (await getSources()).map(formatSource).join('\n') || 'No current urls';
     say(message);
   };
 
@@ -196,12 +190,9 @@ let timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
     }
     let name = parts[1];
     let url = parts[2];
-    if (url.startsWith('<')) {
-      url = url.slice(1);
-    }
-    if (url.endsWith('>')) {
-      url = url.slice(0, url.length - 1);
-    }
+    if (url.startsWith('<')) url = url.slice(1);
+    if (url.endsWith('>')) url = url.slice(0, url.length - 1);
+
     if (!isURL(url)) {
       say(`${url} is not a valid URL`);
       console.log(`${url} is not a valid url`);
@@ -231,7 +222,7 @@ let timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
     if (vars === undefined) return;
     const sources = await Promise.all(
       vars.split(',').map(async x => {
-        let newParts = parts.map(p => p.replace(/\{\}/, x));
+        const newParts = parts.map(p => p.replace(/\{\}/, x));
         return await addOrSet(['add', ...newParts]);
       })
     );
@@ -243,20 +234,18 @@ let timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
     await redisClient.set('pgnmuleprivate:replacements', JSON.stringify(replacements));
   };
   const getReplacements = async () => {
-    let replacementsString = await redisClient.get('pgnmuleprivate:replacements');
+    const replacementsString = await redisClient.get('pgnmuleprivate:replacements');
     if (!notEmpty(replacementsString)) {
       return [] as Replacements;
     }
     return JSON.parse(replacementsString) as Replacements;
   };
   const replace = async (pgn: string) => {
-    let replacements = await getReplacements();
-    return replacements.reduce((current, r) => {
-      return current.replace(new RegExp(r.oldContent, 'g'), r.newContent);
-    }, pgn);
+    const replacements = await getReplacements();
+    return replacements.reduce((current, r) => current.replace(new RegExp(r.oldContent, 'g'), r.newContent), pgn);
   };
   const addReplacement = async (messageId: number, replacementString: string) => {
-    let replacement = JSON.parse(replacementString) as Replacement;
+    const replacement = JSON.parse(replacementString) as Replacement;
     await setReplacements([...(await getReplacements()), replacement]);
     await react('check_mark', messageId);
   };
@@ -277,7 +266,7 @@ let timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
       if (text.startsWith('Reminder: ')) {
         text = text.slice(10);
       }
-      console.log(text);
+      console.log(`Received command: ${text}`);
       let parts = text.split(/\s+/);
       if (parts.length < 1) return;
       let command = parts[0].toLowerCase();
