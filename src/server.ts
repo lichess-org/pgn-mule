@@ -336,7 +336,7 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
         if (event.type == 'heartbeat') {
           // console.log('Zulip heartbeat');
         } else if (event.message) {
-          if (event.subject == zulipTopic) await handler(event.message);
+          if (event.message.subject == zulipTopic) await handler(event.message);
         } else console.log(event);
       });
     }
