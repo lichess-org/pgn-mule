@@ -327,7 +327,10 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
       });
       res.events.forEach(async (event: any) => {
         lastEventId = event.id;
-        await handler(event.message);
+        if (event.type == 'heartbeat') {
+          // console.log('Zulip heartbeat');
+        } else if (event.message) await handler(event.message);
+        else console.log(event);
       });
     }
   };
