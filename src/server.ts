@@ -335,8 +335,9 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
         lastEventId = event.id;
         if (event.type == 'heartbeat') {
           // console.log('Zulip heartbeat');
-        } else if (event.message) await handler(event.message);
-        else console.log(event);
+        } else if (event.message) {
+          if (event.subject == zulipTopic) await handler(event.message);
+        } else console.log(event);
       });
     }
   };
