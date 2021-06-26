@@ -130,7 +130,7 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
           `
             );
             if (Math.abs(secondsSinceUpdated - source.delay / 1000.0) < Math.abs(secondsSinceUpdated - slowPollRate)) {
-              say(`${name} Slowing refresh to ${delay / 1000} seconds`);
+              sayOnce(`${name} Slowing refresh to ${delay / 1000} seconds`);
             }
           }
           timeouts[name] = setTimeout(() => pollURL(name), delay);
@@ -317,6 +317,12 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
       subject: zulipTopic,
       content: text,
     });
+
+  let lastSay = '';
+  const sayOnce = async (text: string) => {
+    if (text != lastSay) await say(text);
+    lastSay = text;
+  };
 
   const zulipMessageLoop = async (client: any, queue: number, handler: any) => {
     let lastEventId = -1;
