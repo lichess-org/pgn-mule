@@ -11,10 +11,10 @@ yarn start
 In zulip
 
 ```
-add <name> <source-url> <delay-seconds>
+add <name> <source-url> <update-freq-seconds> <delay-seconds>
 list
 remove <name>
-addMany 1,2,3,4,5,6,7 <name>{} <url>-{}.pgn <delay-seconds>
+addMany 1,2,3,4,5,6,7 <name>{} <url>-{}.pgn <update-freq-seconds> <delay-seconds>
 addReplacement {"oldContent": "username", "newContent": "Name, Real 007"}
 listReplacements
 delReplacement 0

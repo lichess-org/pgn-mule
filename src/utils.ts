@@ -1,10 +1,12 @@
 import { Chess } from 'chess.js';
+import PgnHistory from './PgnHistory';
 
 export interface Source {
   url: string;
   name: string;
   updateFreqSeconds: number;
-  pgn: string;
+  pgnHistory: PgnHistory;
+  delaySeconds: number;
   dateLastPolled: Date;
   dateLastUpdated: Date;
 }

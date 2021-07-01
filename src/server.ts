@@ -19,6 +19,7 @@ import Koa from 'koa';
 import Router from '@koa/router';
 import { promisify } from 'util';
 import { differenceInSeconds } from 'date-fns';
+import PgnHistory from './PgnHistory';
 
 const sleep = promisify(setTimeout);
 
@@ -37,6 +38,7 @@ const userAgent = envOr(
   'PGN_MULE_UA',
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36'
 );
+const maxDelaySeconds = parseInt(envOrDie('DELAY_MAX_SECONDS'));
 const zulipStream = envOrDie('ZULIP_STREAM');
 const zulipTopic = envOrDie('ZULIP_TOPIC');
 
@@ -94,7 +96,7 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
         const source = await getSource(name);
         if (source === undefined) return;
         if (body && !err && res.statusCode === 200) {
-          source.pgn = body;
+          source.pgnHistory.add(body);
           const allGames = body.split('[Event').filter((g: string) => !!g);
           console.log(`[${name}]: Got ${allGames.length} games (${body.length} bytes)`);
         } else if (!body) {
@@ -114,7 +116,7 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
           let updateFreqMillis = source.updateFreqSeconds * 1000;
           if (minutes >= minutesInactivitySlowDown) {
             updateFreqMillis = Math.max(source.updateFreqSeconds * 4 * 1000, slowPollRate * 1000);
-            console.log(`New update freq: ${updateFreqMillis}ms`);
+            console.log(`New update freq: ${Math.round(updateFreqMillis / 1000)}s`);
             console.log(
               `Checking whether we just slowed down or not: ${secondsSinceUpdated} < ${slowPollRate} = ${
                 secondsSinceUpdated < slowPollRate
@@ -158,18 +160,21 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
   };
 
   const setSource = async (s: Source) => {
-    await redisClient.set(`pgnmule:${s.name}`, JSON.stringify(s));
+    await redisClient.set(`pgnmule:${s.name}`, sourceToJSON(s));
   };
 
   const sourceFromJSON = (s: string): Source => {
     const d = JSON.parse(s);
     return {
       ...d,
+      pgnHistory: PgnHistory.fromJson(d.pgnHistory, maxDelaySeconds),
       updateFreqSeconds: Math.max(d.updateFreqSeconds, 1),
       dateLastPolled: new Date(d.dateLastPolled),
       dateLastUpdated: new Date(d.dateLastUpdated),
     };
   };
+
+  const sourceToJSON = (s: Source): string => JSON.stringify({ ...s, pgnHistory: s.pgnHistory.entries });
 
   const getSource = async (name: string) => {
     const value = await redisClient.get(`pgnmule:${name}`);
@@ -178,7 +183,13 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
   };
 
   const formatSource = (s: Source) =>
-    `${s.name}: ${s.url} / ${s.updateFreqSeconds}s -> ${publicScheme}://${publicIP}:${publicPort}/${s.name}`;
+    [
+      `\`${s.name}\``,
+      `Source URL: ${s.url}`,
+      `Exposed URL: ${publicScheme}://${publicIP}:${publicPort}/${s.name}`,
+      `Update frequency: once every ${s.updateFreqSeconds} seconds`,
+      `Delay: ${s.delaySeconds} seconds`,
+    ].join('\n');
 
   const formatManySources = (sources: Source[]) =>
     `all of them -> ${publicScheme}://${publicIP}:${publicPort}/${sources.map(s => s.name).join('/')}`;
@@ -189,9 +200,11 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
   };
 
   const addOrSet = async (parts: string[], reactToMessageId?: number) => {
-    let updateFreqSeconds = 10;
-    if (parts.length > 3) {
-      updateFreqSeconds = parseInt(parts[3]);
+    const updateFreqSeconds = parts.length > 3 ? parseInt(parts[3]) : 10;
+    const delaySeconds = parts.length > 4 ? parseInt(parts[4]) : 0;
+    if (delaySeconds > maxDelaySeconds) {
+      say(`Delay must be <= ${maxDelaySeconds}`);
+      return;
     }
     let name = parts[1];
     let url = parts[2];
@@ -203,11 +216,13 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
       console.log(`${url} is not a valid url`);
       return;
     }
-    let source = {
+    const previous = await getSource(name);
+    const source = {
       name,
       url,
       updateFreqSeconds,
-      pgn: '',
+      pgnHistory: previous?.url == url ? previous.pgnHistory : new PgnHistory([], maxDelaySeconds),
+      delaySeconds,
       dateLastPolled: new Date(),
       dateLastUpdated: new Date(),
     };
@@ -275,7 +290,7 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
       let parts = text.split(/\s+/);
       if (parts.length < 1) return;
       let command = parts[0].toLowerCase();
-      if (isCommand(command, ['add', 'set']) && (parts.length === 3 || parts.length === 4)) {
+      if (isCommand(command, ['add', 'set']) && parts.length > 2 && parts.length < 6) {
         console.log(`Processing add command ${parts}`);
         await addOrSet(parts);
       } else if (isCommand(command, ['addmany', 'add-many']) && (parts.length === 4 || parts.length === 5)) {
@@ -355,16 +370,22 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
   router.get('/', (ctx, _) => {
     ctx.body = 'Hello World';
   });
+  router.get('/favicon.ico', (ctx, _) => {
+    ctx.throw(404);
+  });
   router.get('/:names+', async (ctx, _) => {
     const names = ctx.params.names.split('/') as string[];
-    const sources = dbg(await Promise.all(names.map(n => getSource(n as string))));
+    const sources = await Promise.all(names.map(n => getSource(n as string)));
     await Promise.all(
       sources.filter(notEmpty).map(s => {
         s.dateLastPolled = new Date();
         return setSource(s);
       })
     );
-    let pgns = sources.filter(notEmpty).map(s => s.pgn);
+    let pgns = sources
+      .filter(notEmpty)
+      .map(s => s.pgnHistory.getWithDelay(s.delaySeconds))
+      .filter(notEmpty);
     if (notEmpty(ctx.query.roundbase)) {
       pgns = chess24Rounds(pgns, ctx.query.roundbase);
     }
