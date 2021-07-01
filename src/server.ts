@@ -43,7 +43,11 @@ const zulipTopic = envOrDie('ZULIP_TOPIC');
 
 const redisClient = createHandyClient({
   port: parseInt(envOr('REDIS_PORT', '6379')),
-  password: process.env.REDIS_PASSWORD,
+  ...(process.env.REDIS_PASSWORD
+    ? {
+        password: process.env.REDIS_PASSWORD,
+      }
+    : {}),
 });
 
 //------------------------------------------------------------------------------
@@ -326,6 +330,8 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
       ) {
         console.log(`Processing remove-replacement command ${parts}`);
         removeReplacement(msg.id, parts[1]);
+      } else {
+        console.log('Unprocessed command');
       }
     } catch (e) {
       console.error(`Uncaught error: ${e}`);
