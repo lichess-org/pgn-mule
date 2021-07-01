@@ -48,9 +48,9 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
 
 (async () => {
   const z = await zulip({
-    username: process.env.ZULIP_USERNAME,
-    apiKey: process.env.ZULIP_API_KEY,
-    realm: process.env.ZULIP_REALM,
+    username: envOrDie('ZULIP_USERNAME'),
+    apiKey: envOrDie('ZULIP_API_KEY'),
+    realm: envOrDie('ZULIP_REALM'),
   });
 
   const getSources = async () => {
