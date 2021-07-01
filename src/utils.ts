@@ -3,7 +3,7 @@ import { Chess } from 'chess.js';
 export interface Source {
   url: string;
   name: string;
-  delay: number;
+  updateFreqSeconds: number;
   pgn: string;
   dateLastPolled: Date;
   dateLastUpdated: Date;

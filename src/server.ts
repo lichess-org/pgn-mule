@@ -111,29 +111,33 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
           say(`${name} removed due to inactivity`);
           await removeSource(name);
         } else {
-          let delay = source.delay * 1000;
+          let updateFreqMillis = source.updateFreqSeconds * 1000;
           if (minutes >= minutesInactivitySlowDown) {
-            delay = Math.max(source.delay * 4 * 1000, slowPollRate * 1000);
-            console.log(`New Delay: ${delay}`);
+            updateFreqMillis = Math.max(source.updateFreqSeconds * 4 * 1000, slowPollRate * 1000);
+            console.log(`New update freq: ${updateFreqMillis}ms`);
             console.log(
               `Checking whether we just slowed down or not: ${secondsSinceUpdated} < ${slowPollRate} = ${
                 secondsSinceUpdated < slowPollRate
               }`
             );
             console.log(
-              `secondsSinceUpdate - source.delay = ${Math.abs(
-                secondsSinceUpdated - source.delay / 1000.0
+              `secondsSinceUpdate - source.updateFreqSeconds = ${Math.abs(
+                secondsSinceUpdated - source.updateFreqSeconds / 1000.0
               )} | secondsSinceUpdate - slowPollRate = ${Math.abs(secondsSinceUpdated - slowPollRate)}
             Are we closer to the slow poll rate? ${
-              Math.abs(secondsSinceUpdated - source.delay / 1000.0) < Math.abs(secondsSinceUpdated - slowPollRate)
+              Math.abs(secondsSinceUpdated - source.updateFreqSeconds / 1000.0) <
+              Math.abs(secondsSinceUpdated - slowPollRate)
             }
           `
             );
-            if (Math.abs(secondsSinceUpdated - source.delay / 1000.0) < Math.abs(secondsSinceUpdated - slowPollRate)) {
-              sayOnce(`${name} Slowing refresh to ${delay / 1000} seconds`);
+            if (
+              Math.abs(secondsSinceUpdated - source.updateFreqSeconds / 1000.0) <
+              Math.abs(secondsSinceUpdated - slowPollRate)
+            ) {
+              sayOnce(`${name} Slowing refresh to ${updateFreqMillis / 1000} seconds`);
             }
           }
-          timeouts[name] = setTimeout(() => pollURL(name), delay);
+          timeouts[name] = setTimeout(() => pollURL(name), updateFreqMillis);
         }
       }
     );
@@ -161,6 +165,7 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
     const d = JSON.parse(s);
     return {
       ...d,
+      updateFreqSeconds: Math.max(d.updateFreqSeconds, 1),
       dateLastPolled: new Date(d.dateLastPolled),
       dateLastUpdated: new Date(d.dateLastUpdated),
     };
@@ -173,7 +178,7 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
   };
 
   const formatSource = (s: Source) =>
-    `${s.name}: ${s.url} / ${s.delay}s -> ${publicScheme}://${publicIP}:${publicPort}/${s.name}`;
+    `${s.name}: ${s.url} / ${s.updateFreqSeconds}s -> ${publicScheme}://${publicIP}:${publicPort}/${s.name}`;
 
   const formatManySources = (sources: Source[]) =>
     `all of them -> ${publicScheme}://${publicIP}:${publicPort}/${sources.map(s => s.name).join('/')}`;
@@ -184,9 +189,9 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
   };
 
   const addOrSet = async (parts: string[], reactToMessageId?: number) => {
-    let delay = 10;
+    let updateFreqSeconds = 10;
     if (parts.length > 3) {
-      delay = parseInt(parts[3]);
+      updateFreqSeconds = parseInt(parts[3]);
     }
     let name = parts[1];
     let url = parts[2];
@@ -201,7 +206,7 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
     let source = {
       name,
       url,
-      delay,
+      updateFreqSeconds,
       pgn: '',
       dateLastPolled: new Date(),
       dateLastUpdated: new Date(),
