@@ -11,7 +11,6 @@ import {
   Replacements,
   Replacement,
   isCommand,
-  dbg,
   toShredder,
   chess24Rounds,
 } from './utils';
@@ -42,7 +41,10 @@ const maxDelaySeconds = parseInt(envOrDie('DELAY_MAX_SECONDS'));
 const zulipStream = envOrDie('ZULIP_STREAM');
 const zulipTopic = envOrDie('ZULIP_TOPIC');
 
-const redisClient = createHandyClient();
+const redisClient = createHandyClient({
+  port: parseInt(envOr('REDIS_PORT', '6379')),
+  password: process.env.REDIS_PASSWORD,
+});
 
 //------------------------------------------------------------------------------
 // A struct to keep timeouts
