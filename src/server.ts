@@ -13,6 +13,7 @@ import {
   isCommand,
   toShredder,
   chess24Rounds,
+  markdownTable,
 } from './utils';
 import Koa from 'koa';
 import Router from '@koa/router';
@@ -201,8 +202,21 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
     `all of them -> ${publicScheme}://${publicIP}:${publicPort}/${sources.map(s => s.name).join('/')}`;
 
   const list = async () => {
-    const message = (await getSources()).map(formatSource).join('\n') || 'No current urls';
-    say(message);
+    const sources = await getSources();
+    if (!sources.length) await say('No active sources');
+    else
+      await say(
+        markdownTable([
+          ['Name', 'Destination', 'Freq', 'Delay', 'Source'],
+          ...sources.map(s => [
+            s.name,
+            `${publicScheme}://${publicIP}:${publicPort}/${s.name}`,
+            `1/${s.updateFreqSeconds}s`,
+            `${s.delaySeconds}s`,
+            s.url,
+          ]),
+        ])
+      );
   };
 
   const addOrSet = async (parts: string[], reactToMessageId?: number) => {
@@ -277,7 +291,10 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
   };
   const listReplacements = async () => {
     await say(
-      `Replacements: \n ${(await getReplacements()).map((r, i) => `*${i}* -> ${JSON.stringify(r)}`).join('\n')}`
+      markdownTable([
+        ['ID', 'From', 'To'],
+        ...(await getReplacements()).map((r, i) => ['' + i, r.oldContent, r.newContent]),
+      ])
     );
   };
   const removeReplacement = async (messageId: number, indexString: string) => {
