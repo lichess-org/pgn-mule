@@ -360,18 +360,23 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
   const zulipMessageLoop = async (client: any, queue: number, handler: any) => {
     let lastEventId = -1;
     while (true) {
-      const res = await client.events.retrieve({
-        queue_id: queue,
-        last_event_id: lastEventId,
-      });
-      res.events.forEach(async (event: any) => {
-        lastEventId = event.id;
-        if (event.type == 'heartbeat') {
-          // console.log('Zulip heartbeat');
-        } else if (event.message) {
-          if (event.message.subject == zulipTopic) await handler(event.message);
-        } else console.log(event);
-      });
+      try {
+        const res = await client.events.retrieve({
+          queue_id: queue,
+          last_event_id: lastEventId,
+        });
+        res.events.forEach(async (event: any) => {
+          lastEventId = event.id;
+          if (event.type == 'heartbeat') {
+            // console.log('Zulip heartbeat');
+          } else if (event.message) {
+            if (event.message.subject == zulipTopic) await handler(event.message);
+          } else console.log(event);
+        });
+      } catch (e) {
+        console.error(e);
+        await sleep(2000);
+      }
     }
   };
 
