@@ -171,14 +171,19 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
   };
 
   const sourceFromJSON = (s: string): Source => {
-    const d = JSON.parse(s);
-    return {
-      ...d,
-      pgnHistory: PgnHistory.fromJson(d.pgnHistory, maxDelaySeconds),
-      updateFreqSeconds: Math.max(d.updateFreqSeconds, 1),
-      dateLastPolled: new Date(d.dateLastPolled),
-      dateLastUpdated: new Date(d.dateLastUpdated),
-    };
+    try {
+      const d = JSON.parse(s);
+      return {
+        ...d,
+        pgnHistory: PgnHistory.fromJson(d.pgnHistory, maxDelaySeconds),
+        updateFreqSeconds: Math.max(d.updateFreqSeconds, 1),
+        dateLastPolled: new Date(d.dateLastPolled),
+        dateLastUpdated: new Date(d.dateLastUpdated),
+      };
+    } catch (e) {
+      console.log(s);
+      throw e;
+    }
   };
 
   const sourceToJSON = (s: Source): string => JSON.stringify({ ...s, pgnHistory: s.pgnHistory.entries });
@@ -372,18 +377,23 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
   const zulipMessageLoop = async (client: any, queue: number, handler: any) => {
     let lastEventId = -1;
     while (true) {
-      const res = await client.events.retrieve({
-        queue_id: queue,
-        last_event_id: lastEventId,
-      });
-      res.events.forEach(async (event: any) => {
-        lastEventId = event.id;
-        if (event.type == 'heartbeat') {
-          // console.log('Zulip heartbeat');
-        } else if (event.message) {
-          if (event.message.subject == zulipTopic) await handler(event.message);
-        } else console.log(event);
-      });
+      try {
+        const res = await client.events.retrieve({
+          queue_id: queue,
+          last_event_id: lastEventId,
+        });
+        res.events.forEach(async (event: any) => {
+          lastEventId = event.id;
+          if (event.type == 'heartbeat') {
+            // console.log('Zulip heartbeat');
+          } else if (event.message) {
+            if (event.message.subject == zulipTopic) await handler(event.message);
+          } else console.log(event);
+        });
+      } catch (e) {
+        console.error(e);
+        await sleep(2000);
+      }
     }
   };
 
