@@ -290,7 +290,8 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
     return replacements.reduce((current, r) => current.replace(new RegExp(r.oldContent, 'g'), r.newContent), pgn);
   };
   const addReplacement = async (messageId: number, replacementString: string) => {
-    const replacement = JSON.parse(replacementString) as Replacement;
+    const [oldContent, newContent] = replacementString.split('->').map(s => s.trim());
+    const replacement: Replacement = { oldContent, newContent };
     await setReplacements([...(await getReplacements()), replacement]);
     await react('check_mark', messageId);
   };
@@ -333,10 +334,10 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
       } else if (isCommand(command, ['clear-all-sources']) && parts.length === 1) {
         console.log(`Processing clear-all-sources command ${parts}`);
         await clearAllSources(msg.id);
-      } else if (isCommand(command, ['addreplacement', 'add-replacement']) && parts.length > 1) {
+      } else if (isCommand(command, ['replace', 'addreplacement', 'add-replacement']) && parts.length > 1) {
         console.log(`Processing add-replacement command ${parts}`);
         await addReplacement(msg.id, text.substr(command.length + 1));
-      } else if (isCommand(command, ['listreplacements', 'list-replacements']) && parts.length === 1) {
+      } else if (isCommand(command, ['replacements', 'listreplacements', 'list-replacements']) && parts.length === 1) {
         console.log(`Processing list-replacement command ${parts}`);
         listReplacements();
       } else if (
