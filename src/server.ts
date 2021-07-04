@@ -170,14 +170,19 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
   };
 
   const sourceFromJSON = (s: string): Source => {
-    const d = JSON.parse(s);
-    return {
-      ...d,
-      pgnHistory: PgnHistory.fromJson(d.pgnHistory, maxDelaySeconds),
-      updateFreqSeconds: Math.max(d.updateFreqSeconds, 1),
-      dateLastPolled: new Date(d.dateLastPolled),
-      dateLastUpdated: new Date(d.dateLastUpdated),
-    };
+    try {
+      const d = JSON.parse(s);
+      return {
+        ...d,
+        pgnHistory: PgnHistory.fromJson(d.pgnHistory, maxDelaySeconds),
+        updateFreqSeconds: Math.max(d.updateFreqSeconds, 1),
+        dateLastPolled: new Date(d.dateLastPolled),
+        dateLastUpdated: new Date(d.dateLastUpdated),
+      };
+    } catch (e) {
+      console.log(s);
+      throw e;
+    }
   };
 
   const sourceToJSON = (s: Source): string => JSON.stringify({ ...s, pgnHistory: s.pgnHistory.entries });
