@@ -175,7 +175,7 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
       const d = JSON.parse(s);
       return {
         ...d,
-        pgnHistory: PgnHistory.fromJson(d.pgnHistory, maxDelaySeconds),
+        pgnHistory: PgnHistory.fromJson(d.pgnHistory, d.delaySeconds || 0),
         updateFreqSeconds: Math.max(d.updateFreqSeconds, 1),
         dateLastPolled: new Date(d.dateLastPolled),
         dateLastUpdated: new Date(d.dateLastUpdated),
@@ -246,7 +246,7 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
       name,
       url,
       updateFreqSeconds,
-      pgnHistory: previous?.url == url ? previous.pgnHistory : new PgnHistory([], maxDelaySeconds),
+      pgnHistory: previous?.url == url ? previous.pgnHistory : new PgnHistory([], delaySeconds),
       delaySeconds,
       dateLastPolled: new Date(),
       dateLastUpdated: new Date(),

@@ -16,7 +16,7 @@ export default class PgnHistory {
     const date = new Date();
     const latest = this.getLatest();
     if (latest?.pgn != pgn) this.entries.push({ pgn, date });
-    this.purgeOldEntries();
+    this.purgeOldEntries(date);
   };
 
   getWithDelay = (seconds: Seconds): Pgn | undefined => {
@@ -33,8 +33,8 @@ export default class PgnHistory {
     return found;
   };
 
-  private purgeOldEntries = () => {
-    const limit = new Date().getTime() - this.maxAge * 1000;
+  private purgeOldEntries = (now: Date) => {
+    const limit = now.getTime() - this.maxAge * 1000;
     this.entries = this.entries.filter(e => e.date.getTime() >= limit);
   };
 
@@ -46,12 +46,12 @@ export default class PgnHistory {
       .filter(line => line.trim() == '' || line[0] == '[')
       .join('\n');
 
-  static fromJson = (entries: any[], maxAge: Seconds) =>
+  static fromJson = (entries: any[], delaySeconds: Seconds) =>
     new PgnHistory(
       entries.map((e: any) => ({
         pgn: e.pgn,
         date: new Date(e.date),
       })),
-      maxAge
+      delaySeconds
     );
 }
