@@ -44,11 +44,8 @@ const zulipTopic = envOrDie('ZULIP_TOPIC');
 
 const redisClient = createHandyClient({
   port: parseInt(envOr('REDIS_PORT', '6379')),
-  ...(process.env.REDIS_PASSWORD
-    ? {
-        password: process.env.REDIS_PASSWORD,
-      }
-    : {}),
+  password: process.env.REDIS_PASSWORD,
+  db: process.env.REDIS_DB,
 });
 
 //------------------------------------------------------------------------------
