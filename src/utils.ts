@@ -74,11 +74,21 @@ export function toShredder(fen: string) {
 
 // chess 24 round numbers.
 export function chess24Rounds(pgns: string[], roundbase: string): string[] {
+  const chess = new Chess();
   return pgns.map((pgn, i) => {
-    const chess = new Chess();
-    chess.load_pgn(pgn);
-    chess.header('Round', roundbase.replace('{}', (i + 1).toString()));
-    return chess.pgn();
+    if (chess.load_pgn(pgn)) {
+      chess.header('Round', roundbase.replace('{}', (i + 1).toString()));
+      return chess.pgn();
+    } else return pgn;
+  });
+}
+
+export function filterPgns(pgns: string[]) {
+  const chess = new Chess();
+  return pgns.filter(pgn => {
+    const success = chess.load_pgn(pgn);
+    const headers = chess.header();
+    return success && headers['White']?.toLowerCase() != 'bye' && headers['Black']?.toLowerCase() != 'bye';
   });
 }
 
