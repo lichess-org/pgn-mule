@@ -15,8 +15,10 @@ export default class PgnHistory {
   add = (pgn: Pgn): void => {
     const date = new Date();
     const latest = this.getLatest();
-    if (latest?.pgn != pgn) this.entries.push({ pgn, date });
-    this.purgeOldEntries(date);
+    if (latest?.pgn != pgn) {
+      this.entries.push({ pgn, date });
+      this.purgeOldEntries(date);
+    }
   };
 
   getWithDelay = (seconds: Seconds): Pgn | undefined => {
