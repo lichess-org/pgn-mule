@@ -422,7 +422,7 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
       .map(s => s.pgnHistory.getWithDelay(s.delaySeconds))
       .filter(notEmpty);
     let games = splitGames(pgns.join('\n\n'));
-    games = filterGames(games);
+    games = filterGames(games, ctx.query.round);
     if (notEmpty(ctx.query.roundbase)) {
       games = chess24Rounds(games, ctx.query.roundbase);
     }

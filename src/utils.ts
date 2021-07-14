@@ -88,9 +88,13 @@ export function chess24Rounds(pgns: string[], roundbase: string): string[] {
   });
 }
 
-export function filterGames(pgns: string[]) {
+export function filterGames(pgns: string[], round?: string) {
   return pgns.filter(pgn => {
-    return !pgn.includes('[White "bye"]') && !pgn.includes('[Black "bye"]');
+    return (
+      !pgn.includes('[White "bye"]') &&
+      !pgn.includes('[Black "bye"]') &&
+      (!round || pgn.match(new RegExp('\\[Round "' + round + '["\\.]')))
+    );
   });
 }
 
