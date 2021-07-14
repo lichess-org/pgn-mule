@@ -72,6 +72,11 @@ export function toShredder(fen: string) {
     .replace(/(\/R\wR\w\w\w\w\w w) KQkq/g, '$1 CAca');
 }
 
+const splitRegex = /\n\n(?=\[)/;
+export function splitGames(multiPgn: string): string[] {
+  return multiPgn.replace(/\r/g, '').split(splitRegex);
+}
+
 // chess 24 round numbers.
 export function chess24Rounds(pgns: string[], roundbase: string): string[] {
   const chess = new Chess();
@@ -83,12 +88,9 @@ export function chess24Rounds(pgns: string[], roundbase: string): string[] {
   });
 }
 
-export function filterPgns(pgns: string[]) {
-  const chess = new Chess();
+export function filterGames(pgns: string[]) {
   return pgns.filter(pgn => {
-    const success = chess.load_pgn(pgn);
-    const headers = chess.header();
-    return success && headers['White']?.toLowerCase() != 'bye' && headers['Black']?.toLowerCase() != 'bye';
+    return !pgn.includes('[White "bye"]') && !pgn.includes('[Black "bye"]');
   });
 }
 

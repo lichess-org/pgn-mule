@@ -14,7 +14,8 @@ import {
   toShredder,
   chess24Rounds,
   markdownTable,
-  filterPgns,
+  splitGames,
+  filterGames,
 } from './utils';
 import Koa from 'koa';
 import Router from '@koa/router';
@@ -420,11 +421,12 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
       .filter(notEmpty)
       .map(s => s.pgnHistory.getWithDelay(s.delaySeconds))
       .filter(notEmpty);
-    pgns = filterPgns(pgns);
+    let games = splitGames(pgns.join('\n\n'));
+    games = filterGames(games);
     if (notEmpty(ctx.query.roundbase)) {
-      pgns = chess24Rounds(pgns, ctx.query.roundbase);
+      games = chess24Rounds(games, ctx.query.roundbase);
     }
-    let pgn = await replace(pgns.join('\n\n'));
+    let pgn = await replace(games.join('\n\n'));
 
     if (ctx.query.shredder === '1') {
       pgn = toShredder(pgn);
