@@ -15,7 +15,7 @@ add <name> <source-url> <update-freq-seconds> <delay-seconds>
 list
 remove <name>
 addMany 1,2,3,4,5,6,7 <name>{} <url>-{}.pgn <update-freq-seconds> <delay-seconds>
-addReplacement {"oldContent": "username", "newContent": "Name, Real 007"}
+addReplacement from->to
 listReplacements
 delReplacement 0
 ```
