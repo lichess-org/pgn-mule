@@ -16,6 +16,8 @@ import {
   markdownTable,
   splitGames,
   filterGames,
+  markdownPre,
+  regexEscape,
 } from './utils';
 import Koa from 'koa';
 import Router from '@koa/router';
@@ -286,25 +288,38 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
   };
   const replace = async (pgn: string) => {
     const replacements = await getReplacements();
-    return replacements.reduce((current, r) => current.replace(new RegExp(r.oldContent, 'g'), r.newContent), pgn);
+    return replacements.reduce((current, r) => current.replace(new RegExp(r.regex ? r.oldContent : regexEscape(r.oldContent), 'g'), r.newContent), pgn);
   };
   const addReplacement = async (messageId: number, replacementString: string) => {
-    const [oldContent, newContent] = replacementString.split('->').map(s => s.trim());
+    const regex = replacementString.startsWith("r`");
+    if (regex) replacementString = replacementString.substring(1);
+    const [oldContent, newContent] = replacementString.split('->').map(s => s.trim().replace(/^`+|`+$/g, '').replace(/\\n/g, "\n"));
     const replacement: Replacement = { oldContent, newContent };
+    if (regex) replacement.regex = true;
     await setReplacements([...(await getReplacements()), replacement]);
+    await react('check_mark', messageId);
+  };
+  const addReplacements = async (messageId: number, arg: string) => {
+    const replacements = arg.replace(/^`+|`+$/g, '').split("\n").map(x => x.trim()).filter(x => x.length > 0).map(x => {
+      const [oldContent, newContent] = x.split("\t").map(x => x.trim());
+      return { oldContent, newContent };
+    });
+    await setReplacements([...(await getReplacements()), ...replacements]);
     await react('check_mark', messageId);
   };
   const listReplacements = async () => {
     await say(
       markdownTable([
-        ['ID', 'From', 'To'],
-        ...(await getReplacements()).map((r, i) => ['' + i, r.oldContent, r.newContent]),
+        ['ID', 'From', 'To', 'Regex'],
+        ...(await getReplacements()).map((r, i) => ['' + i, markdownPre(r.oldContent), markdownPre(r.newContent), r.regex ? "regex" : ""]),
       ])
     );
   };
   const removeReplacement = async (messageId: number, indexString: string) => {
-    const index = parseInt(indexString);
-    await setReplacements((await getReplacements()).filter((_, i) => i !== index));
+    const parts = indexString.split("-")
+    const start = parseInt(parts[0]);
+    const end = parseInt(parts[parts.length - 1]);
+    await setReplacements((await getReplacements()).filter((_, i) => i < start || i > end));
     await react('check_mark', messageId);
   };
 
@@ -336,6 +351,9 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
       } else if (isCommand(command, ['replace', 'addreplacement', 'add-replacement']) && parts.length > 1) {
         console.log(`Processing add-replacement command ${parts}`);
         await addReplacement(msg.id, text.substr(command.length + 1));
+      } else if (isCommand(command, ['replace-multiple', 'addreplacements', 'add-replacements']) && parts.length > 1) {
+        console.log(`Processing add-replacements command`);
+        await addReplacements(msg.id, text.substr(command.length + 1));
       } else if (isCommand(command, ['replacements', 'listreplacements', 'list-replacements']) && parts.length === 1) {
         console.log(`Processing list-replacement command ${parts}`);
         listReplacements();

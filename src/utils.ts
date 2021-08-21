@@ -37,6 +37,7 @@ export const isCommand = (c: string, patterns: string[]) => {
 export interface Replacement {
   oldContent: string;
   newContent: string;
+  regex?: boolean;
 }
 
 export type Replacements = Replacement[];
@@ -104,3 +105,7 @@ export const markdownTable = (rows: string[][]) =>
   [markdownTableRow(rows[0]), markdownTableRow(rows[0].map(_ => '---')), ...rows.slice(1).map(markdownTableRow)].join(
     '\n'
   );
+
+export const markdownPre = (s: string) => "`" + s + "`";
+
+export const regexEscape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
