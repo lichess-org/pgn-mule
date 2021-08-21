@@ -4,10 +4,10 @@ root = true
 # Unix-style newlines with a newline ending every file
 [*]
 end_of_line = lf
+quote_type = single
 insert_final_newline = true
 
 [*.{js,ts,yml,json}]
 charset = utf-8
 indent_style=space
 indent_size=2
-
