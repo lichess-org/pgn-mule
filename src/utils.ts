@@ -11,7 +11,9 @@ export interface Source {
   dateLastUpdated: Date;
 }
 
-export function notEmpty<TValue>(value: TValue | null | undefined): value is TValue {
+export function notEmpty<TValue>(
+  value: TValue | null | undefined
+): value is TValue {
   return value !== null && value !== undefined;
 }
 
@@ -31,12 +33,13 @@ export function envOrDie(name: string): string {
 }
 
 export const isCommand = (c: string, patterns: string[]) => {
-  return patterns.some(p => c === p);
+  return patterns.some((p) => c === p);
 };
 
 export interface Replacement {
   oldContent: string;
   newContent: string;
+  regex?: boolean;
 }
 
 export type Replacements = Replacement[];
@@ -89,7 +92,7 @@ export function chess24Rounds(pgns: string[], roundbase: string): string[] {
 }
 
 export function filterGames(pgns: string[], round?: string) {
-  return pgns.filter(pgn => {
+  return pgns.filter((pgn) => {
     return (
       !pgn.includes('[White "bye"]') &&
       !pgn.includes('[Black "bye"]') &&
@@ -101,6 +104,13 @@ export function filterGames(pgns: string[], round?: string) {
 const markdownTableRow = (row: string[]) => `| ${row.join(' | ')} |`;
 
 export const markdownTable = (rows: string[][]) =>
-  [markdownTableRow(rows[0]), markdownTableRow(rows[0].map(_ => '---')), ...rows.slice(1).map(markdownTableRow)].join(
-    '\n'
-  );
+  [
+    markdownTableRow(rows[0]),
+    markdownTableRow(rows[0].map((_) => '---')),
+    ...rows.slice(1).map(markdownTableRow),
+  ].join('\n');
+
+export const markdownPre = (s: string) => '`' + s + '`';
+
+export const regexEscape = (s: string) =>
+  s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

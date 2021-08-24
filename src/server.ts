@@ -16,6 +16,8 @@ import {
   markdownTable,
   splitGames,
   filterGames,
+  markdownPre,
+  regexEscape,
 } from './utils';
 import Koa from 'koa';
 import Router from '@koa/router';
@@ -34,7 +36,9 @@ const publicScheme = envOrDie('PUBLIC_SCHEME');
 const publicIP = envOrDie('PUBLIC_IP');
 const publicPort = parseInt(envOrDie('PUBLIC_PORT'));
 const slowPollRate = parseFloat(envOrDie('SLOW_POLL_RATE_SECONDS'));
-const minutesInactivitySlowDown = parseFloat(envOrDie('MINUTES_INACTIVITY_SLOWDOWN'));
+const minutesInactivitySlowDown = parseFloat(
+  envOrDie('MINUTES_INACTIVITY_SLOWDOWN')
+);
 const minutesInactivityDie = parseFloat(envOrDie('MINUTES_INACTIVITY_DIE'));
 const userAgent = envOr(
   'PGN_MULE_UA',
@@ -64,12 +68,14 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
   const getSources = async () => {
     const keys = await redisClient.keys('pgnmule:*');
     console.log(`Got ${keys.length} sources: ${JSON.stringify(keys)}`);
-    return (await Promise.all(keys.map(k => redisClient.get(k)))).filter(notEmpty).map(sourceFromJSON);
+    return (await Promise.all(keys.map((k) => redisClient.get(k))))
+      .filter(notEmpty)
+      .map(sourceFromJSON);
   };
   const clearAllSources = async (messageId: number) => {
     console.log(`Clearing all sources`);
     const sources = await getSources();
-    sources.forEach(async s => {
+    sources.forEach(async (s) => {
       console.log(`Clearing source: ${s.name}`);
       await removeSource(s.name);
     });
@@ -78,7 +84,7 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
   };
 
   const startSources = async () => {
-    (await getSources()).forEach(s => {
+    (await getSources()).forEach((s) => {
       console.log(`Starting ${s.name}`);
       pollURL(s.name);
     });
@@ -104,16 +110,22 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
         if (body && !err && res.statusCode === 200) {
           source.pgnHistory.add(body);
           const allGames = body.split('[Event').filter((g: string) => !!g);
-          console.log(`[${name}]: Got ${allGames.length} games (${body.length} bytes)`);
+          console.log(
+            `[${name}]: Got ${allGames.length} games (${body.length} bytes)`
+          );
         } else if (!body) {
           console.log(`[${name}]: Empty response`);
         } else if (res.statusCode !== 404) {
           console.log(`[${name}]: ERROR ${res.statusCode} err:${err}`);
         }
-        const secondsSinceUpdated = differenceInSeconds(new Date(), source.dateLastUpdated);
+        const secondsSinceUpdated = differenceInSeconds(
+          new Date(),
+          source.dateLastUpdated
+        );
         source.dateLastUpdated = new Date();
         await setSource(source);
-        const minutes = differenceInSeconds(new Date(), source.dateLastPolled) / 60.0;
+        const minutes =
+          differenceInSeconds(new Date(), source.dateLastPolled) / 60.0;
         if (minutes >= minutesInactivityDie) {
           console.log(`${name} removed due to inactivity`);
           say(`${name} removed due to inactivity`);
@@ -121,8 +133,13 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
         } else {
           let updateFreqMillis = source.updateFreqSeconds * 1000;
           if (minutes >= minutesInactivitySlowDown) {
-            updateFreqMillis = Math.max(source.updateFreqSeconds * 4 * 1000, slowPollRate * 1000);
-            console.log(`New update freq: ${Math.round(updateFreqMillis / 1000)}s`);
+            updateFreqMillis = Math.max(
+              source.updateFreqSeconds * 4 * 1000,
+              slowPollRate * 1000
+            );
+            console.log(
+              `New update freq: ${Math.round(updateFreqMillis / 1000)}s`
+            );
             console.log(
               `Checking whether we just slowed down or not: ${secondsSinceUpdated} < ${slowPollRate} = ${
                 secondsSinceUpdated < slowPollRate
@@ -131,18 +148,24 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
             console.log(
               `secondsSinceUpdate - source.updateFreqSeconds = ${Math.abs(
                 secondsSinceUpdated - source.updateFreqSeconds / 1000.0
-              )} | secondsSinceUpdate - slowPollRate = ${Math.abs(secondsSinceUpdated - slowPollRate)}
+              )} | secondsSinceUpdate - slowPollRate = ${Math.abs(
+                secondsSinceUpdated - slowPollRate
+              )}
             Are we closer to the slow poll rate? ${
-              Math.abs(secondsSinceUpdated - source.updateFreqSeconds / 1000.0) <
-              Math.abs(secondsSinceUpdated - slowPollRate)
+              Math.abs(
+                secondsSinceUpdated - source.updateFreqSeconds / 1000.0
+              ) < Math.abs(secondsSinceUpdated - slowPollRate)
             }
           `
             );
             if (
-              Math.abs(secondsSinceUpdated - source.updateFreqSeconds / 1000.0) <
-              Math.abs(secondsSinceUpdated - slowPollRate)
+              Math.abs(
+                secondsSinceUpdated - source.updateFreqSeconds / 1000.0
+              ) < Math.abs(secondsSinceUpdated - slowPollRate)
             ) {
-              sayOnce(`${name} Slowing refresh to ${updateFreqMillis / 1000} seconds`);
+              sayOnce(
+                `${name} Slowing refresh to ${updateFreqMillis / 1000} seconds`
+              );
             }
           }
           timeouts[name] = setTimeout(() => pollURL(name), updateFreqMillis);
@@ -185,7 +208,8 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
     }
   };
 
-  const sourceToJSON = (s: Source): string => JSON.stringify({ ...s, pgnHistory: s.pgnHistory.entries });
+  const sourceToJSON = (s: Source): string =>
+    JSON.stringify({ ...s, pgnHistory: s.pgnHistory.entries });
 
   const getSource = async (name: string) => {
     const value = await redisClient.get(`pgnmule:${name}`);
@@ -203,7 +227,9 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
     ].join('\n');
 
   const formatManySources = (sources: Source[]) =>
-    `all of them -> ${publicScheme}://${publicIP}:${publicPort}/${sources.map(s => s.name).join('/')}`;
+    `all of them -> ${publicScheme}://${publicIP}:${publicPort}/${sources
+      .map((s) => s.name)
+      .join('/')}`;
 
   const list = async () => {
     const sources = await getSources();
@@ -212,7 +238,7 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
       await say(
         markdownTable([
           ['Name', 'Destination', 'Freq', 'Delay', 'Source'],
-          ...sources.map(s => [
+          ...sources.map((s) => [
             s.name,
             `${publicScheme}://${publicIP}:${publicPort}/${s.name}`,
             `1/${s.updateFreqSeconds}s`,
@@ -245,7 +271,10 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
       name,
       url,
       updateFreqSeconds,
-      pgnHistory: previous?.url == url ? previous.pgnHistory : new PgnHistory([], delaySeconds),
+      pgnHistory:
+        previous?.url == url
+          ? previous.pgnHistory
+          : new PgnHistory([], delaySeconds),
       delaySeconds,
       dateLastPolled: new Date(),
       dateLastUpdated: new Date(),
@@ -265,8 +294,8 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
     let vars = parts.shift(); // Remove vars
     if (vars === undefined) return;
     const sources = await Promise.all(
-      vars.split(',').map(async x => {
-        const newParts = parts.map(p => p.replace(/\{\}/, x));
+      vars.split(',').map(async (x) => {
+        const newParts = parts.map((p) => p.replace(/\{\}/, x));
         return await addOrSet(['add', ...newParts]);
       })
     );
@@ -275,10 +304,15 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
   };
 
   const setReplacements = async (replacements: Replacements) => {
-    await redisClient.set('pgnmuleprivate:replacements', JSON.stringify(replacements));
+    await redisClient.set(
+      'pgnmuleprivate:replacements',
+      JSON.stringify(replacements)
+    );
   };
   const getReplacements = async () => {
-    const replacementsString = await redisClient.get('pgnmuleprivate:replacements');
+    const replacementsString = await redisClient.get(
+      'pgnmuleprivate:replacements'
+    );
     if (!notEmpty(replacementsString)) {
       return [] as Replacements;
     }
@@ -286,25 +320,67 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
   };
   const replace = async (pgn: string) => {
     const replacements = await getReplacements();
-    return replacements.reduce((current, r) => current.replace(new RegExp(r.oldContent, 'g'), r.newContent), pgn);
+    return replacements.reduce(
+      (current, r) =>
+        current.replace(
+          new RegExp(r.regex ? r.oldContent : regexEscape(r.oldContent), 'g'),
+          r.newContent
+        ),
+      pgn
+    );
   };
-  const addReplacement = async (messageId: number, replacementString: string) => {
-    const [oldContent, newContent] = replacementString.split('->').map(s => s.trim());
+  const addReplacement = async (
+    messageId: number,
+    replacementString: string
+  ) => {
+    const regex = replacementString.startsWith('r`');
+    if (regex) replacementString = replacementString.substring(1);
+    const [oldContent, newContent] = replacementString.split('->').map((s) =>
+      s
+        .trim()
+        .replace(/^`+|`+$/g, '')
+        .replace(/\\n/g, '\n')
+    );
     const replacement: Replacement = { oldContent, newContent };
+    if (regex) replacement.regex = true;
     await setReplacements([...(await getReplacements()), replacement]);
+    await react('check_mark', messageId);
+  };
+  const addReplacements = async (messageId: number, arg: string) => {
+    const replacements = arg
+      .replace(/^`+|`+$/g, '')
+      .split('\n')
+      .map((x) => x.trim())
+      .filter((x) => x.length > 0)
+      .map((x) => {
+        const [oldContent, newContent] = x.split('\t').map((x) => x.trim());
+        return { oldContent, newContent };
+      });
+    await setReplacements([...(await getReplacements()), ...replacements]);
     await react('check_mark', messageId);
   };
   const listReplacements = async () => {
     await say(
       markdownTable([
-        ['ID', 'From', 'To'],
-        ...(await getReplacements()).map((r, i) => ['' + i, r.oldContent, r.newContent]),
+        ['ID', 'From', 'To', 'Regex'],
+        ...(
+          await getReplacements()
+        ).map((r, i) => [
+          '' + i,
+          markdownPre(r.oldContent),
+          markdownPre(r.newContent),
+          r.regex ? 'regex' : '',
+        ]),
       ])
     );
   };
   const removeReplacement = async (messageId: number, indexString: string) => {
-    const index = parseInt(indexString);
-    await setReplacements((await getReplacements()).filter((_, i) => i !== index));
+    const parts = indexString.split('-');
+    const start = parseInt(parts[0]);
+    const end = parseInt(parts[parts.length - 1]);
+    await setReplacements(
+      (await getReplacements()).filter((_, i) => i < start || i > end)
+    );
     await react('check_mark', messageId);
   };
 
@@ -318,25 +394,58 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
       let parts = text.split(/\s+/);
       if (parts.length < 1) return;
       let command = parts[0].toLowerCase();
-      if (isCommand(command, ['add', 'set']) && parts.length > 2 && parts.length < 6) {
+      if (
+        isCommand(command, ['add', 'set']) &&
+        parts.length > 2 &&
+        parts.length < 6
+      ) {
         console.log(`Processing add command ${parts}`);
         await addOrSet(parts);
-      } else if (isCommand(command, ['addmany', 'add-many']) && (parts.length === 4 || parts.length === 5)) {
+      } else if (
+        isCommand(command, ['addmany', 'add-many']) &&
+        (parts.length === 4 || parts.length === 5)
+      ) {
         console.log(`Processing addMany command ${parts}`);
         await addMany(parts, msg.id);
-      } else if (isCommand(command, ['remove', 'rm', 'del', 'stop']) && parts.length == 2) {
+      } else if (
+        isCommand(command, ['remove', 'rm', 'del', 'stop']) &&
+        parts.length == 2
+      ) {
         console.log(`Processing remove command ${parts}`);
         await remove(parts[1], msg.id);
       } else if (isCommand(command, ['list']) && parts.length === 1) {
         console.log(`Processing list command ${parts}`);
         list();
-      } else if (isCommand(command, ['clear-all-sources']) && parts.length === 1) {
+      } else if (
+        isCommand(command, ['clear-all-sources']) &&
+        parts.length === 1
+      ) {
         console.log(`Processing clear-all-sources command ${parts}`);
         await clearAllSources(msg.id);
-      } else if (isCommand(command, ['replace', 'addreplacement', 'add-replacement']) && parts.length > 1) {
+      } else if (
+        isCommand(command, ['replace', 'addreplacement', 'add-replacement']) &&
+        parts.length > 1
+      ) {
         console.log(`Processing add-replacement command ${parts}`);
         await addReplacement(msg.id, text.substr(command.length + 1));
-      } else if (isCommand(command, ['replacements', 'listreplacements', 'list-replacements']) && parts.length === 1) {
+      } else if (
+        isCommand(command, [
+          'replace-multiple',
+          'addreplacements',
+          'add-replacements',
+        ]) &&
+        parts.length > 1
+      ) {
+        console.log(`Processing add-replacements command`);
+        await addReplacements(msg.id, text.substr(command.length + 1));
+      } else if (
+        isCommand(command, [
+          'replacements',
+          'listreplacements',
+          'list-replacements',
+        ]) &&
+        parts.length === 1
+      ) {
         console.log(`Processing list-replacement command ${parts}`);
         listReplacements();
       } else if (
@@ -387,7 +496,8 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
           if (event.type == 'heartbeat') {
             // console.log('Zulip heartbeat');
           } else if (event.message) {
-            if (event.message.subject == zulipTopic) await handler(event.message);
+            if (event.message.subject == zulipTopic)
+              await handler(event.message);
           } else console.log(event);
         });
       } catch (e) {
@@ -410,16 +520,16 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
   });
   router.get('/:names+', async (ctx, _) => {
     const names = ctx.params.names.split('/') as string[];
-    const sources = await Promise.all(names.map(n => getSource(n as string)));
+    const sources = await Promise.all(names.map((n) => getSource(n as string)));
     await Promise.all(
-      sources.filter(notEmpty).map(s => {
+      sources.filter(notEmpty).map((s) => {
         s.dateLastPolled = new Date();
         return setSource(s);
       })
     );
     let pgns = sources
       .filter(notEmpty)
-      .map(s => s.pgnHistory.getWithDelay(s.delaySeconds))
+      .map((s) => s.pgnHistory.getWithDelay(s.delaySeconds))
       .filter(notEmpty);
     let games = splitGames(pgns.join('\n\n'));
     games = filterGames(games, ctx.query.round);
