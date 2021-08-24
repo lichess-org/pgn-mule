@@ -31,6 +31,7 @@ configDotEnv();
 
 //------------------------------------------------------------------------------
 // Environment variables/config
+const version = '2.0.1';
 const cookie = envOrDie('PGN_MULE_COOKIE');
 const publicScheme = envOrDie('PUBLIC_SCHEME');
 const publicIP = envOrDie('PUBLIC_IP');
@@ -461,6 +462,8 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
       ) {
         console.log(`Processing remove-replacement command ${parts}`);
         removeReplacement(msg.id, parts[1]);
+      } else if (isCommand(command, ['version'])) {
+        await say(`Version: ${version}`);
       } else {
         console.log('Unprocessed command');
       }
