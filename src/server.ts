@@ -536,7 +536,7 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
       .filter(notEmpty);
     let games = splitGames(pgns.join('\n\n'));
     games = filterGames(games, ctx.query.round);
-    if (ctx.query.onlyTopBoards) games.slice(0, ctx.query.onlyTopBoards);
+    if (ctx.query.onlyTopBoards) games = games.slice(0, ctx.query.onlyTopBoards);
     if (notEmpty(ctx.query.roundbase)) {
       games = chess24Rounds(games, ctx.query.roundbase);
     }
