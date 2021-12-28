@@ -40,11 +40,18 @@ For a given url, add in: `&shredder=1` which will convert X-Fen to Shredder-Fen
 
 Add in: `&round=4` to filter games with the `Round` PGN tag equal to `4` or starting with `4.`
 
-### onlyTopBoards
+### slice
 
-Add in: `&onlyTopBoards=20` to only keep the first 20 boards, and drop the other ones.
+Extract a slice of the games. Both sides are inclusive.
+
+- `&slice=1-20` only keep the first 20 boards, and drop the other ones.
+- `&slice=1-1` only keep the first board, and drop the other ones.
+- `&slice=20-50` only keep the boards 20 to 50, and drop the other ones.
+- `&slice=50-999` only keep the boards 50 to the last one.
+
+The slicing happens **after** the `&round=` filtering.
 Note that if you reduce the number of boards, after having already fetched them, then you must delete manually the extra chapters.
-So be sure to have it `onlyTopBoards` set right from the beginning.
+So be sure to have it `slice` set right from the beginning.
 
 ## Custom Round Tags
 
