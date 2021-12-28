@@ -22,9 +22,30 @@ delReplacement 0
 
 ## QueryString Options:
 
-For a given url, add in: `?shredder=1` which will convert X-Fen to Shredder-Fen
+Note that the first option must start with `?`, and the later ones with `&`.
+
+Examples:
+`url.com/foo?round=1`
+`url.com/foo?round=1&onlyTopBoards=20&shredder=1`
+`url.com/foo?onlyTopBoards=20&round=1`
+
+In the examples below we'll only show `&`. Replace with `?` if it's the first option.
+
+### shredder
+
+For a given url, add in: `&shredder=1` which will convert X-Fen to Shredder-Fen
+
+### round
+
+Add in: `&round=4` to filter games with the `Round` PGN tag equal to `4` or starting with `4.`
+
+### onlyTopBoards
+
+Add in: `&onlyTopBoards=20` to only keep the first 20 boards, and drop the other ones.
+Note that if you reduce the number of boards, after having already fetched them, then you must delete manually the extra chapters.
+So be sure to have it `onlyTopBoards` set right from the beginning.
 
 ## Custom Round Tags
 
-For a given url, add in: `?roundbase=1.{}` and the games will have their 1.{}
+For a given url, add in: `&roundbase=1.{}` and the games will have their 1.{}
 replace with 1.1, 1.2, 1.3 ...
