@@ -25,9 +25,10 @@ delReplacement 0
 Note that the first option must start with `?`, and the later ones with `&`.
 
 Examples:
-`url.com/foo?round=1`
-`url.com/foo?round=1&onlyTopBoards=20&shredder=1`
-`url.com/foo?onlyTopBoards=20&round=1`
+
+- `url.com/foo?round=1`
+- `url.com/foo?round=1&onlyTopBoards=20&shredder=1`
+- `url.com/foo?onlyTopBoards=20&round=1`
 
 In the examples below we'll only show `&`. Replace with `?` if it's the first option.
 
@@ -47,5 +48,5 @@ So be sure to have it `onlyTopBoards` set right from the beginning.
 
 ## Custom Round Tags
 
-For a given url, add in: `&roundbase=1.{}` and the games will have their 1.{}
-replace with 1.1, 1.2, 1.3 ...
+Add in: `&roundbase=1.{}` and the games will have their 1.{}
+replaced with 1.1, 1.2, 1.3 ...
