@@ -57,3 +57,9 @@ So be sure to have it `slice` set right from the beginning.
 
 Add in: `&roundbase=1.{}` and the games will have their 1.{}
 replaced with 1.1, 1.2, 1.3 ...
+
+## Deploy
+
+```sh
+yarn build; rsync -av build node_modules root@radio.lichess.ovh:/home/zulip-pgn-mule/; ssh root@radio.lichess.ovh "systemctl restart zulip-pgn-mule"
+```
