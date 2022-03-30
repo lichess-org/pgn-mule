@@ -404,7 +404,8 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
         await addOrSet(parts);
       } else if (
         isCommand(command, ['addmany', 'add-many']) &&
-        (parts.length === 4 || parts.length === 5)
+        parts.length > 3 &&
+        parts.length < 7
       ) {
         console.log(`Processing addMany command ${parts}`);
         await addMany(parts, msg.id);
