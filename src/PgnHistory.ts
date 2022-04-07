@@ -48,12 +48,12 @@ export default class PgnHistory {
       .filter(line => line.trim() == '' || line[0] == '[')
       .join('\n');
 
-  static fromJson = (entries: any[], delaySeconds: Seconds) =>
+  static fromJson = (entries: any[], maxDelaySeconds: Seconds) =>
     new PgnHistory(
       entries.map((e: any) => ({
         pgn: e.pgn,
         date: new Date(e.date),
       })),
-      delaySeconds
+      maxDelaySeconds
     );
 }
