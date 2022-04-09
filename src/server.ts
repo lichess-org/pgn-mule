@@ -198,7 +198,7 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
       const d = JSON.parse(s);
       return {
         ...d,
-        pgnHistory: PgnHistory.fromJson(d.pgnHistory, maxDelaySeconds),
+        pgnHistory: PgnHistory.fromJson(d.pgnHistory, d.delaySeconds),
         updateFreqSeconds: Math.max(d.updateFreqSeconds, 1),
         dateLastPolled: new Date(d.dateLastPolled),
         dateLastUpdated: new Date(d.dateLastUpdated),
@@ -275,7 +275,7 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
       pgnHistory:
         previous?.url == url
           ? previous.pgnHistory
-          : new PgnHistory([], maxDelaySeconds),
+          : new PgnHistory([], delaySeconds),
       delaySeconds,
       dateLastPolled: new Date(),
       dateLastUpdated: new Date(),
@@ -533,7 +533,7 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
     );
     let pgns = sources
       .filter(notEmpty)
-      .map((s) => s.pgnHistory.getWithDelay(s.delaySeconds))
+      .map((s) => s.pgnHistory.getWithDelay())
       .filter(notEmpty);
     let games = splitGames(pgns.join('\n\n'));
     games = filterGames(games, ctx.query.round);

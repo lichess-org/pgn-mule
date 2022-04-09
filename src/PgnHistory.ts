@@ -8,7 +8,7 @@ interface PgnEntry {
 export default class PgnHistory {
   entries: PgnEntry[]; // chronological order: oldest first.
 
-  constructor(es: PgnEntry[], readonly maxAge: Seconds) {
+  constructor(es: PgnEntry[], readonly delay: Seconds) {
     this.entries = es;
   }
 
@@ -21,8 +21,8 @@ export default class PgnHistory {
     }
   };
 
-  getWithDelay = (seconds: Seconds): Pgn | undefined => {
-    const limit = new Date().getTime() - seconds * 1000;
+  getWithDelay = (): Pgn | undefined => {
+    const limit = new Date().getTime() - this.delay * 1000;
     let found: Pgn | undefined;
     for (const entry of this.entries) {
       if (entry.date.getTime() <= limit) found = entry.pgn;
@@ -36,8 +36,9 @@ export default class PgnHistory {
   };
 
   private purgeOldEntries = (now: Date) => {
-    const limit = now.getTime() - this.maxAge * 1000;
-    const keepIndex = this.entries.findIndex((e) => e.date.getTime() >= limit);
+    const limit = now.getTime() - this.delay * 1000;
+    const keepIndex =
+      this.entries.findIndex((e) => e.date.getTime() >= limit) - 1; // keep one older entry
     if (keepIndex > 0) this.entries = this.entries.slice(keepIndex);
   };
 
@@ -49,12 +50,12 @@ export default class PgnHistory {
       .filter((line) => line.trim() == '' || line[0] == '[')
       .join('\n');
 
-  static fromJson = (entries: any[], maxDelaySeconds: Seconds) =>
+  static fromJson = (entries: any[], delay: Seconds) =>
     new PgnHistory(
       entries.map((e: any) => ({
         pgn: e.pgn,
         date: new Date(e.date),
       })),
-      maxDelaySeconds
+      delay
     );
 }
