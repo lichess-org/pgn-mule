@@ -45,7 +45,7 @@ export default class PgnHistory {
   private stripMoves = (pgn: Pgn) =>
     pgn
       .split('\n')
-      .filter(line => line.trim() == '' || line[0] == '[')
+      .filter((line) => line.trim() == '' || line[0] == '[')
       .join('\n');
 
   static fromJson = (entries: any[], maxDelaySeconds: Seconds) =>
