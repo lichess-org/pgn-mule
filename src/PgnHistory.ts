@@ -37,7 +37,8 @@ export default class PgnHistory {
 
   private purgeOldEntries = (now: Date) => {
     const limit = now.getTime() - this.maxAge * 1000;
-    this.entries = this.entries.filter(e => e.date.getTime() >= limit);
+    const keepIndex = this.entries.findIndex((e) => e.date.getTime() >= limit);
+    if (keepIndex > 0) this.entries = this.entries.slice(keepIndex);
   };
 
   private getLatest = () => this.entries[this.entries.length - 1];
