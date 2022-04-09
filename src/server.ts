@@ -527,8 +527,10 @@ const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
     const sources = await Promise.all(names.map((n) => getSource(n as string)));
     await Promise.all(
       sources.filter(notEmpty).map((s) => {
+        const commit =
+          s.dateLastPolled.getTime() < new Date().getTime() - 60_000;
         s.dateLastPolled = new Date();
-        return setSource(s);
+        return commit ? setSource(s) : Promise.resolve();
       })
     );
     let pgns = sources
