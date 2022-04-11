@@ -1,11 +1,10 @@
 import { Chess } from 'chess.js';
-import PgnHistory from './PgnHistory';
+import { promisify } from 'util';
 
 export interface Source {
   url: string;
   name: string;
   updateFreqSeconds: number;
-  pgnHistory: PgnHistory;
   delaySeconds: number;
   dateLastPolled: Date;
   dateLastUpdated: Date;
@@ -31,10 +30,6 @@ export function envOrDie(name: string): string {
   }
   return token;
 }
-
-export const isCommand = (c: string, patterns: string[]) => {
-  return patterns.some((p) => c === p);
-};
 
 export interface Replacement {
   oldContent: string;
@@ -114,3 +109,5 @@ export const markdownPre = (s: string) => '`' + s + '`';
 
 export const regexEscape = (s: string) =>
   s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+export const sleep = promisify(setTimeout);
