@@ -7,7 +7,7 @@ import {
   publicScheme,
   version,
   zulipStream,
-  zulipTopic
+  zulipTopic,
 } from './config';
 import PgnHistory from './PgnHistory';
 import { pollURL } from './poll';
@@ -19,7 +19,7 @@ import {
   notEmpty,
   Replacement,
   sleep,
-  Source
+  Source,
 } from './utils';
 
 interface Handler {
@@ -256,8 +256,8 @@ export class Zulip {
           await this.redis.getReplacements()
         ).map((r, i) => [
           '' + i,
-          markdownPre(r.oldContent),
-          markdownPre(r.newContent),
+          markdownPre(r.oldContent.replace(/\n/g, '\\n')),
+          markdownPre(r.newContent.replace(/\n/g, '\\n')),
           r.regex ? 'regex' : '',
         ]),
       ])
