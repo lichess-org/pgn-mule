@@ -92,22 +92,31 @@ export class Zulip {
     await this.z.users.me.subscriptions.add({
       subscriptions: JSON.stringify([{ name: zulipStream }]),
     });
+    const me = await this.z.users.me.getProfile();
 
     const q = await this.z.queues.register({ event_types: ['message'] });
 
-    let lastEventId = -1;
+    let lastEventId = q.last_event_id;
     while (true) {
       try {
         const res = await this.z.events.retrieve({
           queue_id: q.queue_id,
           last_event_id: lastEventId,
         });
+        if (res.result !== 'success') {
+          console.error(`Error on events.retrieve: ${JSON.stringify(res)}`);
+          await sleep(2000);
+          continue;
+        }
         res.events.forEach(async (event: any) => {
           lastEventId = event.id;
           if (event.type == 'heartbeat') {
             // console.log('Zulip heartbeat');
           } else if (event.message) {
-            if (event.message.subject == zulipTopic)
+            if (
+              event.message.subject === zulipTopic &&
+              event.message.sender_id !== me.user_id
+            )
               await this.msgHandler(event.message);
           } else console.log(event);
         });
