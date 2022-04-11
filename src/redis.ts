@@ -55,9 +55,12 @@ export class Redis {
 
       const limit = time - source.delaySeconds * 1000;
       const keepIndex = pgns.findIndex((d) => d >= limit) - 1; // keep one older entry
-      if (keepIndex > 0) pgns.splice(0, keepIndex);
-
+      const toRemove = keepIndex > 0 ? pgns.splice(0, keepIndex) : undefined;
       await this.setPgnList(source.name, pgns);
+      if (toRemove)
+        await this.client.del(
+          ...toRemove.map((t) => `pgnmule:pgns:${source.name}:${t}`)
+        );
     }
   };
 
