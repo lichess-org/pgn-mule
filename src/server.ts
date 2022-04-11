@@ -49,21 +49,20 @@ import { Zulip } from './zulip';
   });
   router.get('/:names+', async (ctx, _) => {
     const names = ctx.params.names.split('/') as string[];
-    const sources = await Promise.all(
-      names.map((n) => redis.getSource(n as string))
-    );
+    const sources = (
+      await Promise.all(names.map((n) => redis.getSource(n as string)))
+    ).filter(notEmpty);
     await Promise.all(
-      sources.filter(notEmpty).map((s) => {
+      sources.map((s) => {
         const commit =
           s.dateLastPolled.getTime() < new Date().getTime() - 60_000;
         s.dateLastPolled = new Date();
         return commit ? redis.setSource(s) : Promise.resolve();
       })
     );
-    let pgns = sources
-      .filter(notEmpty)
-      .map((s) => s.pgnHistory.getWithDelay())
-      .filter(notEmpty);
+    const pgns = (
+      await Promise.all(sources.map((s) => redis.getPgnWithDelay(s)))
+    ).filter(notEmpty);
     let games = splitGames(pgns.join('\n\n'));
     games = filterGames(games, ctx.query.round);
     const slice = ctx.query.slice;

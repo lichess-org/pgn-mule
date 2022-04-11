@@ -30,8 +30,14 @@ export const pollURL = async (name: string, redis: Redis, zulip: Zulip) => {
     async (err, res, body) => {
       const source = await redis.getSource(name);
       if (source === undefined) return;
+      const secondsSinceUpdated = differenceInSeconds(
+        new Date(),
+        source.dateLastUpdated
+      );
+      source.dateLastUpdated = new Date();
+      await redis.setSource(source);
       if (body && !err && res.statusCode === 200) {
-        source.pgnHistory.add(body);
+        await redis.addPgn(source, body);
         const allGames = body.split('[Event').filter((g: string) => !!g);
         console.log(
           `[${name}]: Got ${allGames.length} games (${body.length} bytes)`
@@ -41,12 +47,6 @@ export const pollURL = async (name: string, redis: Redis, zulip: Zulip) => {
       } else if (res.statusCode !== 404) {
         console.log(`[${name}]: ERROR ${res.statusCode} err:${err}`);
       }
-      const secondsSinceUpdated = differenceInSeconds(
-        new Date(),
-        source.dateLastUpdated
-      );
-      source.dateLastUpdated = new Date();
-      await redis.setSource(source);
       const minutes =
         differenceInSeconds(new Date(), source.dateLastPolled) / 60.0;
       if (minutes >= minutesInactivityDie) {

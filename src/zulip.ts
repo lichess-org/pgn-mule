@@ -9,7 +9,6 @@ import {
   zulipStream,
   zulipTopic,
 } from './config';
-import PgnHistory from './PgnHistory';
 import { pollURL } from './poll';
 import { Redis } from './redis';
 import {
@@ -151,15 +150,12 @@ export class Zulip {
       name,
       url,
       updateFreqSeconds,
-      pgnHistory:
-        previous?.url == url
-          ? previous.pgnHistory
-          : new PgnHistory([], delaySeconds),
       delaySeconds,
       dateLastPolled: new Date(),
       dateLastUpdated: new Date(),
     };
     await this.redis.setSource(source);
+    if (previous?.url !== url) await this.redis.clearPgns(source);
     pollURL(name, this.redis, this);
     await sleep(0.5);
     await this.say(formatSource(source));

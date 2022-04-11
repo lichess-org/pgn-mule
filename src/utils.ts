@@ -1,12 +1,10 @@
 import { Chess } from 'chess.js';
 import { promisify } from 'util';
-import PgnHistory from './PgnHistory';
 
 export interface Source {
   url: string;
   name: string;
   updateFreqSeconds: number;
-  pgnHistory: PgnHistory;
   delaySeconds: number;
   dateLastPolled: Date;
   dateLastUpdated: Date;
