@@ -86,15 +86,53 @@ export function chess24Rounds(pgns: string[], roundbase: string): string[] {
   });
 }
 
-export function filterGames(pgns: string[], round?: string) {
-  return pgns.filter((pgn) => {
-    return (
-      !pgn.includes('[White "bye"]') &&
-      !pgn.includes('[Black "bye"]') &&
-      (!round || pgn.match(new RegExp('\\[Round "' + round + '["\\.]')))
-    );
-  });
+export function filterGames(
+  pgns: string[],
+  roundQuery?: string | string[],
+  sliceQuery?: string | string[]
+): string[] {
+  const rounds = parseRoundsQuery(roundQuery);
+  const groups: string[][] = Array.from(Array(rounds?.length || 1), () => []);
+  for (const pgn of pgns) {
+    if (pgn.includes('[White "bye"]') || pgn.includes('[Black "bye"]'))
+      continue;
+
+    if (rounds) {
+      const match = pgn.match(/\[Round "(\d+)["\.]/);
+      if (!match) continue;
+      const round = parseInt(match[1]);
+      for (const [i, [min, max]] of rounds.entries()) {
+        if (min <= round && round <= max) {
+          groups[i].push(pgn);
+          break;
+        }
+      }
+    } else {
+      groups[0].push(pgn);
+    }
+  }
+
+  if (sliceQuery) {
+    if (!Array.isArray(sliceQuery)) sliceQuery = [sliceQuery];
+    for (const i in groups) {
+      const parts = sliceQuery[i].split('-').map((x: string) => parseInt(x));
+      if (parts[1]) groups[i] = groups[i].slice(parts[0] - 1, parts[1]);
+      else groups[i] = groups[i].slice(0, parts[0]);
+    }
+  }
+
+  return Array.prototype.concat(...groups);
 }
+
+const parseRoundsQuery = (
+  query?: string | string[]
+): [number, number][] | undefined => {
+  if (!query) return undefined;
+  if (!Array.isArray(query)) query = [query];
+  return query
+    .map((r) => r.split('-').map((x) => parseInt(x)))
+    .map((r) => (r.length > 1 ? r : [r[0], r[0]])) as any;
+};
 
 const markdownTableRow = (row: string[]) => `| ${row.join(' | ')} |`;
 
