@@ -6,7 +6,7 @@ import {
   minutesInactivitySlowDown,
   slowPollRate,
   userAgent,
-  lichessNoDelayKey
+  lichessNoDelayKey,
 } from './config';
 import { Redis } from './redis';
 import { notEmpty, Source } from './utils';
@@ -19,7 +19,7 @@ const requestData = (source: Source) => {
   if (!match) return { uri: source.url };
   const [_, ids] = match;
   return {
-    uri: `https://lichess.org/api/games/export/_ids?key=${lichessNoDelayKey}`,
+    uri: `https://lichess.org/api/games/export/_ids?key=${lichessNoDelayKey}&clocks=true`,
     method: 'POST',
     body: ids,
   };
