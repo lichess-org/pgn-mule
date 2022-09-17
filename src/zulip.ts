@@ -140,7 +140,7 @@ export class Zulip {
     if (url.startsWith('<')) url = url.slice(1);
     if (url.endsWith('>')) url = url.slice(0, url.length - 1);
 
-    if (!isURL(url)) {
+    if (!isURL(url) && !url.match(/^lichess:(\w{8}(?:,\w{8})*)$/)) {
       this.say(`${url} is not a valid URL`);
       console.log(`${url} is not a valid url`);
       return;

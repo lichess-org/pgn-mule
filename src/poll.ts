@@ -8,10 +8,21 @@ import {
   userAgent,
 } from './config';
 import { Redis } from './redis';
-import { notEmpty } from './utils';
+import { notEmpty, Source } from './utils';
 import { Zulip } from './zulip';
 
 const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
+
+const requestData = (source: Source) => {
+  const match = source.url.match(/^lichess:(\w{8}(?:,\w{8})*)$/);
+  if (!match) return { uri: source.url };
+  const [_, ids] = match;
+  return {
+    uri: 'https://lichess.org/api/games/export/_ids',
+    method: 'POST',
+    body: ids,
+  };
+};
 
 export const pollURL = async (name: string, redis: Redis, zulip: Zulip) => {
   const timeoutId = timeouts[name];
@@ -21,7 +32,7 @@ export const pollURL = async (name: string, redis: Redis, zulip: Zulip) => {
   if (source === undefined) return;
   request(
     {
-      uri: source.url,
+      ...requestData(source),
       headers: {
         Cookie: cookie,
         'User-Agent': userAgent,
