@@ -9,7 +9,7 @@ import {
   notEmpty,
   regexEscape,
   splitGames,
-  toShredder
+  toShredder,
 } from './utils';
 import { Zulip } from './zulip';
 
@@ -64,13 +64,7 @@ import { Zulip } from './zulip';
       await Promise.all(sources.map((s) => redis.getPgnWithDelay(s)))
     ).filter(notEmpty);
     let games = splitGames(pgns.join('\n\n'));
-    games = filterGames(games, ctx.query.round);
-    const slice = ctx.query.slice;
-    if (slice) {
-      const parts = slice.split('-').map((x: string) => parseInt(x));
-      if (parts[1]) games = games.slice(parts[0] - 1, parts[1]);
-      else games = games.slice(0, parts[0]);
-    }
+    games = filterGames(games, ctx.query.round, ctx.query.slice);
     if (notEmpty(ctx.query.roundbase)) {
       games = chess24Rounds(games, ctx.query.roundbase);
     }
