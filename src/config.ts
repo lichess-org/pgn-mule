@@ -3,7 +3,7 @@ import { envOr, envOrDie } from './utils';
 
 configDotEnv();
 
-export const version = '2.0.1';
+export const version = '2.1.0';
 export const cookie = envOrDie('PGN_MULE_COOKIE');
 export const publicScheme = envOrDie('PUBLIC_SCHEME');
 export const publicIP = envOrDie('PUBLIC_IP');
@@ -22,3 +22,4 @@ export const userAgent = envOr(
 export const maxDelaySeconds = parseInt(envOrDie('DELAY_MAX_SECONDS'));
 export const zulipStream = envOrDie('ZULIP_STREAM');
 export const zulipTopic = envOrDie('ZULIP_TOPIC');
+export const lichessNoDelayKey = envOr('LICHESS_NODELAY_KEY', 'lichessNoDelayKey');
