@@ -140,9 +140,25 @@ export class Zulip {
     if (url.startsWith('<')) url = url.slice(1);
     if (url.endsWith('>')) url = url.slice(0, url.length - 1);
 
-    if (!isURL(url) && !url.match(/^lichess:(\w{8}(?:,\w{8})*)$/)) {
-      this.say(`${url} is not a valid URL`);
-      console.log(`${url} is not a valid url`);
+    if (url.startsWith('lichess:')) {
+      const ids = url.slice(8).split(',');
+      if (ids.length === 0) {
+        this.say('Missing game IDs');
+        return;
+      }
+      for (const id in ids) {
+        if (!id.match(/^\w{8}$/)) {
+          this.say(
+            `Invalid game ID: ${id}. Must have exactly 8 letters or numbers`
+          );
+          return;
+        }
+      }
+    } else if (!isURL(url)) {
+      this.say(
+        `${url} is not a valid URL or Lichess game ID list (doesn't start with lichess:)`
+      );
+      console.log(`${url} is not a valid url or Lichess game ID list`);
       return;
     }
     const previous = await this.redis.getSource(name);
