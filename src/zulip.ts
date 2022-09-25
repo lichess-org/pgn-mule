@@ -270,19 +270,22 @@ export class Zulip {
   };
 
   listReplacements = async () => {
-    await this.say(
-      markdownTable([
-        ['ID', 'From', 'To', 'Regex'],
-        ...(
-          await this.redis.getReplacements()
-        ).map((r, i) => [
-          '' + i,
-          markdownPre(r.oldContent.replace(/\n/g, '\\n')),
-          markdownPre(r.newContent.replace(/\n/g, '\\n')),
-          r.regex ? 'regex' : '',
-        ]),
-      ])
-    );
+    const replacements = await this.redis.getReplacements();
+    for (let i = 0; i < replacements.length; i += 200) {
+      await this.say(
+        markdownTable([
+          ['ID', 'From', 'To', 'Regex'],
+          ...replacements
+            .slice(i, i + 200)
+            .map((r, j) => [
+              '' + (i + j),
+              markdownPre(r.oldContent.replace(/\n/g, '\\n')),
+              markdownPre(r.newContent.replace(/\n/g, '\\n')),
+              r.regex ? 'regex' : '',
+            ]),
+        ])
+      );
+    }
   };
 
   removeReplacement = async ({
