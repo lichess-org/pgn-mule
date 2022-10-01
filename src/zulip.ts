@@ -146,7 +146,7 @@ export class Zulip {
         this.say('Missing game IDs');
         return;
       }
-      for (const id in ids) {
+      for (const id of ids) {
         if (!id.match(/^\w{8}$/)) {
           this.say(
             `Invalid game ID: ${id}. Must have exactly 8 letters or numbers`
