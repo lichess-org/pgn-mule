@@ -237,6 +237,10 @@ export class Zulip {
         .replace(/^`+|`+$/g, '')
         .replace(/\\n/g, '\n')
     );
+    if (!oldContent || !newContent) {
+      this.say('Invalid replacement. Format: from->to');
+      return;
+    }
     const replacement: Replacement = { oldContent, newContent };
     if (regex) replacement.regex = true;
     await this.redis.setReplacements([
