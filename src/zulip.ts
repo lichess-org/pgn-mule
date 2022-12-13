@@ -270,13 +270,14 @@ export class Zulip {
   };
 
   listReplacements = async () => {
+    const PER_MESSAGE = 150;
     const replacements = await this.redis.getReplacements();
-    for (let i = 0; i < replacements.length; i += 200) {
+    for (let i = 0; i < replacements.length; i += PER_MESSAGE) {
       await this.say(
         markdownTable([
           ['ID', 'From', 'To', 'Regex'],
           ...replacements
-            .slice(i, i + 200)
+            .slice(i, i + PER_MESSAGE)
             .map((r, j) => [
               '' + (i + j),
               markdownPre(r.oldContent.replace(/\n/g, '\\n')),
