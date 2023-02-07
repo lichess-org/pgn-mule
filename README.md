@@ -55,7 +55,7 @@ The slicing happens **after** the `&round=` filtering.
 Note that if you reduce the number of boards, after having already fetched them, then you must delete manually the extra chapters.
 So be sure to have it `slice` set right from the beginning.
 
-It's also possible to apply different slices for different rounds by having multiple round and slice parameters which pair up in order. For example, `?round=1-2&slice=9-16&round=3&slice=5-8` will take games 9-16 from (combined) rounds 1+2 and additionally games 5-8 from round 3.
+It's also possible to apply different slices for different rounds by having multiple round and slice parameters which pair up in order. For example, `?round=1&slice=9-16&round=2&slice=5-8` will take games 9-16 from (combined) rounds 1 and additionally games 5-8 from round 2.
 
 ## Custom Round Tags
 

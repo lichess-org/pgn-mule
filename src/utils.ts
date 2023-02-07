@@ -98,11 +98,15 @@ export function filterGames(
       continue;
 
     if (rounds) {
-      const match = pgn.match(/\[Round "(\d+)["\.]/);
+      const match = pgn.match(/\[Round "(\d+)(?:\.(\d+))?"/);
       if (!match) continue;
       const round = parseInt(match[1]);
-      for (const [i, [min, max]] of rounds.entries()) {
-        if (min <= round && round <= max) {
+      const board = match[2] ? parseInt(match[2]) : undefined;
+      for (const [i, [filterRound, filterBoard]] of rounds.entries()) {
+        if (
+          round === filterRound &&
+          (filterBoard === undefined || board === filterBoard)
+        ) {
           groups[i].push(pgn);
           break;
         }
@@ -126,12 +130,10 @@ export function filterGames(
 
 const parseRoundsQuery = (
   query?: string | string[]
-): [number, number][] | undefined => {
+): number[][] | undefined => {
   if (!query) return undefined;
   if (!Array.isArray(query)) query = [query];
-  return query
-    .map((r) => r.split('-').map((x) => parseInt(x)))
-    .map((r) => (r.length > 1 ? r : [r[0], r[0]])) as any;
+  return query.map((r) => r.split('.').map((x) => parseInt(x)));
 };
 
 const markdownTableRow = (row: string[]) => `| ${row.join(' | ')} |`;
