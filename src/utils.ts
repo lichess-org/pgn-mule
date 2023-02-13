@@ -119,9 +119,13 @@ export function filterGames(
   if (sliceQuery) {
     if (!Array.isArray(sliceQuery)) sliceQuery = [sliceQuery];
     for (const i in groups) {
-      const parts = sliceQuery[i].split('-').map((x: string) => parseInt(x));
-      if (parts[1]) groups[i] = groups[i].slice(parts[0] - 1, parts[1]);
-      else groups[i] = groups[i].slice(0, parts[0]);
+      if (!sliceQuery[i]) continue;
+      const group: string[][] = [];
+      for (const part of sliceQuery[i].split(',')) {
+        const [from, to] = part.split('-').map((x: string) => parseInt(x));
+        group.push(groups[i].slice(from - 1, to ?? from));
+      }
+      groups[i] = Array.prototype.concat(...group);
     }
   }
 
