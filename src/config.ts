@@ -22,4 +22,8 @@ export const userAgent = envOr(
 export const maxDelaySeconds = parseInt(envOrDie('DELAY_MAX_SECONDS'));
 export const zulipStream = envOrDie('ZULIP_STREAM');
 export const zulipTopic = envOrDie('ZULIP_TOPIC');
-export const lichessNoDelayKey = envOr('LICHESS_NODELAY_KEY', 'lichessNoDelayKey');
+export const lichessNoDelayKey = envOr(
+  'LICHESS_NODELAY_KEY',
+  'lichessNoDelayKey'
+);
+export const chessDotComCookie = envOrDie('CHESS_DOT_COM_COOKIE');
