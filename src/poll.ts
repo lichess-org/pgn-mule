@@ -14,6 +14,7 @@ import { notEmpty, Source } from './utils';
 import { Zulip } from './zulip';
 import { TextDecoder } from 'util';
 
+import FetchChessDotCom from './source/chessDotCom';
 import FetchLichess from './source/lichess';
 import FetchRaw from './source/raw';
 
@@ -38,7 +39,9 @@ export const pollURL = async (name: string, redis: Redis, zulip: Zulip) => {
   if (source === undefined) return;
   try {
     let bodyText = '';
-    if (source.url.startsWith('lichess:')) {
+    if (source.url.startsWith('chessdotcom:')) {
+      bodyText = await FetchChessDotCom(name, source.url);
+    } else if (source.url.startsWith('lichess:')) {
       bodyText = await FetchLichess(name, source.url);
     } else {
       bodyText = await FetchRaw(name, source.url);
