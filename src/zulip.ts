@@ -1,4 +1,4 @@
-import { isURL } from 'validator';
+import isURL from 'validator/lib/isURL';
 import zulip from 'zulip-js';
 import {
   maxDelaySeconds,
@@ -153,6 +153,16 @@ export class Zulip {
           );
           return;
         }
+      }
+    } else if (url.startsWith('chessdotcom:')) {
+      const [event_id, round] = url.slice('chessdotcom:').split('/');
+      if (typeof event_id === 'undefined') {
+        this.say('Missing event ID');
+        return;
+      }
+      if (typeof round === 'undefined') {
+        this.say('Missing round');
+        return;
       }
     } else if (!isURL(url)) {
       this.say(
