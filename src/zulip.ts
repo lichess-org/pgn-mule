@@ -155,7 +155,7 @@ export class Zulip {
         }
       }
     } else if (url.startsWith('chessdotcom:')) {
-      const [event_id, round] = url.slice('chessdotcom:').split('/');
+      const [event_id, round] = url.slice('chessdotcom:'.length).split('/');
       if (typeof event_id === 'undefined') {
         this.say('Missing event ID');
         return;

@@ -26,4 +26,3 @@ export const lichessNoDelayKey = envOr(
   'LICHESS_NODELAY_KEY',
   'lichessNoDelayKey'
 );
-export const chessDotComCookie = envOrDie('CHESS_DOT_COM_COOKIE');

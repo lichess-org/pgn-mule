@@ -38,15 +38,19 @@ interface Room {
 interface Player {
   name: string;
   title: string;
+  fideId: number;
 }
 interface Game {
   roundId: number;
   slug: string;
   blackElo: number;
   whiteElo: number;
+  blackTitle: string;
+  whiteTitle: string;
   white: Player;
   black: Player;
   result: string;
+  board: number;
 }
 
 interface Move {
@@ -99,10 +103,15 @@ async function GetGamePgn(
         game.header('White', gameInfo.game.white.name);
         game.header('Black', gameInfo.game.black.name);
         game.header('WhiteElo', gameInfo.game.whiteElo.toString());
+        game.header('WhiteTitle', gameInfo.game.whiteTitle);
+        game.header('WhiteFideId', gameInfo.game.white.fideId.toString());
         game.header('BlackElo', gameInfo.game.blackElo.toString());
+        game.header('BlackTitle', gameInfo.game.blackTitle);
+        game.header('BlackFideId', gameInfo.game.black.fideId.toString());
         game.header('TimeControl', room.room.timeControl);
         game.header('Round', roundSlug);
         game.header('Result', gameInfo.game.result);
+        game.header('Board', gameInfo.game.board.toString());
 
         resolve(game.pgn());
       }
