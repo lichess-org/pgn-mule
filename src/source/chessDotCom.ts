@@ -71,7 +71,7 @@ interface GameInfo {
   room: Room;
   moves: Move[];
 }
-async function GetGamePgn(
+async function getGamePgn(
   eventId: string,
   room: RoomInfo,
   roundSlug: string,
@@ -118,7 +118,7 @@ async function GetGamePgn(
     );
   });
 }
-export default async function FetchChessDotCom(
+export default async function fetchChessDotCom(
   name: string,
   url: string
 ): Promise<string> {
@@ -144,7 +144,7 @@ export default async function FetchChessDotCom(
         }
         for (const game of eventInfo.games) {
           if (game.roundId === round.id) {
-            const gamePgn = await GetGamePgn(
+            const gamePgn = await getGamePgn(
               eventId,
               eventInfo,
               roundSlug,

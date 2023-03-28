@@ -3,7 +3,7 @@ import request from 'request';
 import { userAgent, cookie } from '../config';
 import { TextDecoder } from 'util';
 
-export default async function FetchRaw(
+export default async function fetchRaw(
   name: string,
   url: string
 ): Promise<string> {
