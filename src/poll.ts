@@ -1,22 +1,16 @@
 import { differenceInSeconds } from 'date-fns';
-import request from 'request';
-import chardet from 'chardet';
 import {
-  cookie,
   minutesInactivityDie,
   minutesInactivitySlowDown,
   slowPollRate,
-  userAgent,
-  lichessNoDelayKey,
 } from './config';
 import { Redis } from './redis';
 import { notEmpty, Source } from './utils';
 import { Zulip } from './zulip';
-import { TextDecoder } from 'util';
 
-import FetchChessDotCom from './source/chessDotCom';
-import FetchLichess from './source/lichess';
-import FetchRaw from './source/raw';
+import fetchChessDotCom from './source/chessDotCom';
+import fetchLichess from './source/lichess';
+import fetchRaw from './source/raw';
 
 const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
 
@@ -26,11 +20,11 @@ const fetchData = async (
 ): Promise<string | null> => {
   try {
     if (source.url.startsWith('chessdotcom:')) {
-      return await FetchChessDotCom(name, source.url);
+      return await fetchChessDotCom(name, source.url);
     } else if (source.url.startsWith('lichess:')) {
-      return await FetchLichess(name, source.url);
+      return await fetchLichess(name, source.url);
     } else {
-      return await FetchRaw(name, source.url);
+      return await fetchRaw(name, source.url);
     }
   } catch (e) {
     console.log(e);
