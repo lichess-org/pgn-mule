@@ -8,26 +8,23 @@ import { Redis } from './redis';
 import { notEmpty, Source } from './utils';
 import { Zulip } from './zulip';
 
-import fetchChessDotCom from './source/chessDotCom';
+import fetchChessCom from './source/chessCom';
 import fetchLichess from './source/lichess';
 import fetchRaw from './source/raw';
 
 const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
 
-const fetchData = async (
-  name: string,
-  source: Source
-): Promise<string | null> => {
+const fetchData = async (source: Source): Promise<string | null> => {
   try {
-    if (source.url.startsWith('chessdotcom:')) {
-      return await fetchChessDotCom(name, source.url);
+    if (source.url.startsWith('chesscom:')) {
+      return await fetchChessCom(source);
     } else if (source.url.startsWith('lichess:')) {
-      return await fetchLichess(name, source.url);
+      return await fetchLichess(source);
     } else {
-      return await fetchRaw(name, source.url);
+      return await fetchRaw(source);
     }
   } catch (e) {
-    console.log(e);
+    console.log(`[${source.name}]: ${e}`);
     return null;
   }
 };
@@ -40,7 +37,7 @@ export const pollURL = async (name: string, redis: Redis, zulip: Zulip) => {
   let source = await redis.getSource(name);
   if (source === undefined) return;
 
-  const data = await fetchData(name, source);
+  const data = await fetchData(source);
 
   source = await redis.getSource(name); // in case it was deleted in the meantime
   if (source === undefined) return;

@@ -154,14 +154,14 @@ export class Zulip {
           return;
         }
       }
-    } else if (url.startsWith('chessdotcom:')) {
-      const [event_id, round] = url.slice('chessdotcom:'.length).split('/');
-      if (typeof event_id === 'undefined') {
-        this.say('Missing event ID');
+    } else if (url.startsWith('chesscom:')) {
+      const [eventId, round] = url.slice('chesscom:'.length).split('/');
+      if (eventId === undefined || !eventId.match(/^\w+$/)) {
+        this.say(`Missing or invalid event ID: ${eventId}`);
         return;
       }
-      if (typeof round === 'undefined') {
-        this.say('Missing round');
+      if (round === undefined || !round.match(/^\w+$/)) {
+        this.say(`Missing or invalid round: ${round}`);
         return;
       }
     } else if (!isURL(url)) {

@@ -1,13 +1,11 @@
 import request from 'request';
 import { lichessNoDelayKey } from '../config';
+import { Source } from '../utils';
 import fetchRaw from './raw';
 
-export default async function fetchLichess(
-  name: string,
-  url: string
-): Promise<string> {
-  const match = url.match(/^lichess:(\w{8}(?:,\w{8})*)$/);
-  if (!match) return fetchRaw(name, url);
+export default async function fetchLichess(source: Source): Promise<string> {
+  const match = source.url.match(/^lichess:(\w{8}(?:,\w{8})*)$/);
+  if (!match) return fetchRaw(source);
   const [_, ids] = match;
   return new Promise((resolve, reject) => {
     request(
@@ -20,9 +18,9 @@ export default async function fetchLichess(
         if (body && !err && res.statusCode === 200) {
           resolve(body);
         } else if (!body) {
-          reject(`[${name}]: empty response`);
+          reject('empty response');
         } else if (res.statusCode !== 404) {
-          reject(`[${name}]: ERROR ${res.statusCode} err:${err}`);
+          reject(`ERROR ${res.statusCode} err:${err}`);
         }
       }
     );
