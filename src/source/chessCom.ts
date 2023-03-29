@@ -158,18 +158,24 @@ export default async function fetchChessCom(source: Source): Promise<string> {
             reject(`Round ${roundSlug} not found in event ${eventId}`);
             return;
           }
+          let pgns: { [key: number]: string } = {};
+          // Fetch all games asynchronously to speed things up.
+          await Promise.all(
+            eventInfo.games.map(async (game) => {
+              if (game.roundId === round.id) {
+                pgns[game.board] = await getGamePgn(
+                  eventId,
+                  eventInfo,
+                  roundSlug,
+                  game.slug
+                );
+              }
+            })
+          );
           let pgn = '';
-          for (const game of eventInfo.games) {
-            if (game.roundId === round.id) {
-              const gamePgn = await getGamePgn(
-                eventId,
-                eventInfo,
-                roundSlug,
-                game.slug
-              );
-              pgn += gamePgn;
-              pgn += '\n\n';
-            }
+          for (const game of Object.values(pgns)) {
+            pgn += game;
+            pgn += '\n\n';
           }
           resolve(pgn);
         } catch (e) {
