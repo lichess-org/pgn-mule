@@ -156,11 +156,11 @@ export class Zulip {
       }
     } else if (url.startsWith('chesscom:')) {
       const [eventId, round] = url.slice('chesscom:'.length).split('/');
-      if (eventId === undefined || !eventId.match(/^\w+$/)) {
+      if (eventId === undefined || !eventId.match(/^[0-9A-Za-z\-]+$/)) {
         this.say(`Missing or invalid event ID: ${eventId}`);
         return;
       }
-      if (round === undefined || !round.match(/^\w+$/)) {
+      if (round === undefined || !round.match(/^[0-9A-Za-z\-]+$/)) {
         this.say(`Missing or invalid round: ${round}`);
         return;
       }

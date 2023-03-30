@@ -116,7 +116,6 @@ async function getGamePgn(
           game.header('Round', roundSlug);
           game.header('Result', gameInfo.game.result);
           game.header('Board', gameInfo.game.board.toString());
-
           resolve(game.pgn());
         } catch (e) {
           reject(
@@ -129,12 +128,14 @@ async function getGamePgn(
 }
 
 export default async function fetchChessCom(source: Source): Promise<string> {
-  const match = source.url.match(/^chesscom:(\w+)\/(\w+)$/);
+  const match = source.url.match(
+    /^chesscom:([0-9A-Za-z\-]+)\/([0-9A-Za-z\-]+)$/
+  );
   if (!match) throw `Invalid chesscom URL: ${source.url}`;
 
   return new Promise((resolve, reject) => {
     // The URL is of form `chesscom:<event_id>/<round_slug>`
-    const [eventId, roundSlug] = match;
+    const [_, eventId, roundSlug] = match;
     // XXX: We are trying to disguise ourselves as a browser here.
     // TODO: It would make sense to cache this since this data is very unlikely to change.
     request(
