@@ -10,6 +10,7 @@ import { Zulip } from './zulip';
 
 import fetchChessCom from './source/chessCom';
 import fetchLichess from './source/lichess';
+import fetchLcc from './source/lcc';
 import fetchRaw from './source/raw';
 
 const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
@@ -20,6 +21,8 @@ const fetchData = async (source: Source): Promise<string | null> => {
       return await fetchChessCom(source);
     } else if (source.url.startsWith('lichess:')) {
       return await fetchLichess(source);
+    } else if (source.url.startsWith('lcc:')) {
+      return await fetchLcc(source);
     } else {
       return await fetchRaw(source);
     }
