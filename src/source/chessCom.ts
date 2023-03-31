@@ -24,6 +24,7 @@ const chessComHeaders = {
   'Sec-Fetch-Site': 'cross-site',
   'Content-Length': '0',
 };
+
 // NOTE: these types don't contain all the fields, just the ones we care about.
 interface Round {
   id: number;
@@ -70,12 +71,17 @@ interface GameInfo {
   moves: Move[];
 }
 
+interface BoardWithPgn {
+  board: number;
+  pgn: string;
+}
+
 async function getGamePgn(
   eventId: string,
   room: RoomInfo,
   roundSlug: string,
   gameSlug: string
-): Promise<string> {
+): Promise<BoardWithPgn> {
   return new Promise((resolve, reject) => {
     // XXX: We are trying to disguise ourselves as a browser here.
     request(
@@ -117,7 +123,10 @@ async function getGamePgn(
           game.header('Result', gameInfo.game.result);
           game.header('Board', gameInfo.game.board.toString());
 
-          resolve(game.pgn());
+          resolve({
+            board: gameInfo.game.board,
+            pgn: game.pgn(),
+          });
         } catch (e) {
           reject(
             `Error parsing game ${gameSlug} in round ${roundSlug} in event ${eventId}: ${e}`
@@ -131,10 +140,10 @@ async function getGamePgn(
 export default async function fetchChessCom(source: Source): Promise<string> {
   const match = source.url.match(/^chesscom:(\w+)\/(\w+)$/);
   if (!match) throw `Invalid chesscom URL: ${source.url}`;
+  // The URL is of form `chesscom:<event_id>/<round_slug>`
+  const [eventId, roundSlug] = match;
 
   return new Promise((resolve, reject) => {
-    // The URL is of form `chesscom:<event_id>/<round_slug>`
-    const [eventId, roundSlug] = match;
     // XXX: We are trying to disguise ourselves as a browser here.
     // TODO: It would make sense to cache this since this data is very unlikely to change.
     request(
@@ -158,20 +167,20 @@ export default async function fetchChessCom(source: Source): Promise<string> {
             reject(`Round ${roundSlug} not found in event ${eventId}`);
             return;
           }
-          const pgns: [number, string][] = [];
           // Fetch all games asynchronously to speed things up.
-          await Promise.all(
-            eventInfo.games.map(async (game) => {
-              if (game.roundId === round.id) {
-                pgns.push([
-                  game.board,
-                  await getGamePgn(eventId, eventInfo, roundSlug, game.slug),
-                ]);
-              }
-            })
+          const pgns = await Promise.all(
+            eventInfo.games
+              .filter((g) => g.roundId === round.id)
+              .map((game) =>
+                getGamePgn(eventId, eventInfo, roundSlug, game.slug)
+              )
           );
-          const pgn = pgns.sort((a, b) => a[0] - b[0]).join('\n\n');
-          resolve(pgn);
+          resolve(
+            pgns
+              .sort((a, b) => a.board - b.board)
+              .map((g) => g.pgn)
+              .join('\n\n')
+          );
         } catch (e) {
           reject(e);
         }
