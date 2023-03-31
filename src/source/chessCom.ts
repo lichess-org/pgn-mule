@@ -138,10 +138,12 @@ async function getGamePgn(
 }
 
 export default async function fetchChessCom(source: Source): Promise<string> {
-  const match = source.url.match(/^chesscom:(\w+)\/(\w+)$/);
+  const match = source.url.match(
+    /^chesscom:([0-9A-Za-z\-]+)\/([0-9A-Za-z\-]+)$/
+  );
   if (!match) throw `Invalid chesscom URL: ${source.url}`;
   // The URL is of form `chesscom:<event_id>/<round_slug>`
-  const [eventId, roundSlug] = match;
+  const [_, eventId, roundSlug] = match;
 
   return new Promise((resolve, reject) => {
     // XXX: We are trying to disguise ourselves as a browser here.
