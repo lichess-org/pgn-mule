@@ -90,7 +90,6 @@ export default async function fetchLcc(source: Source): Promise<string> {
   if (!match) throw `Invalid lcc URL: ${source.url}`;
   const tournamentId = match[1];
   const round = parseInt(match[2]);
-  console.log(tournamentId);
   return new Promise((resolve, reject) => {
     request(
       `https://1.pool.livechesscloud.com/get/${tournamentId}/tournament.json`,
@@ -142,26 +141,28 @@ export default async function fetchLcc(source: Source): Promise<string> {
               'Result',
               roundInfo.pairings[parseInt(board) - 1].result
             );
-            // It seems like they specify the initlal time in minutes, so we have to convert it to seconds.
-            // chess.header('TimeControl', tournament.timecontrol);
-            let timeControlString = tournament.timecontrol
-              .split(':')
-              .map((t) => {
-                const [initialTime, increment] = t.split('+');
-                return `${parseInt(initialTime) * 60}+${increment}`;
-              })
-              .join(':');
-            chess.header('TimeControl', timeControlString);
+            // This field isn't necessarily in PGN format and can hold any random gibberish string as well
+            // In  case this does not contain the correct data, we can replace it using addReplacement command
+            chess.header('TimeControl', tournament.timecontrol);
             chess.header('Round', round.toString());
             chess.header('Board', board);
             for (let move of game.moves) {
               const [sat, timeStringInSecs] = move.split(' ');
-              const time = parseInt(timeStringInSecs);
-              const hours = Math.floor(time / 3600);
-              const minutes = Math.floor((time / 60) % 60);
-              const seconds = time % 60;
               chess.move(sat);
-              chess.set_comment(`[%clk ${hours}:${minutes}:${seconds}]`);
+              let time: number = NaN;
+              if (typeof timeStringInSecs === 'undefined') {
+              } else if (timeStringInSecs.startsWith('+')) {
+                // The time info is actually missing. It's mysterious what that '+' thing means in the broadcast data
+              } else {
+                time = parseInt(timeStringInSecs);
+              }
+
+              if (!isNaN(time)) {
+                const hours = Math.floor(time / 3600);
+                const minutes = Math.floor((time / 60) % 60);
+                const seconds = time % 60;
+                chess.set_comment(`[%clk ${hours}:${minutes}:${seconds}]`);
+              }
             }
             pgn += chess.pgn();
             pgn += '\n\n';
