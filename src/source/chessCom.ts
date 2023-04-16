@@ -24,6 +24,7 @@ const chessComHeaders = {
   'Sec-Fetch-Site': 'cross-site',
   'Content-Length': '0',
 };
+
 // NOTE: these types don't contain all the fields, just the ones we care about.
 interface Round {
   id: number;
@@ -70,12 +71,17 @@ interface GameInfo {
   moves: Move[];
 }
 
+interface BoardWithPgn {
+  board: number;
+  pgn: string;
+}
+
 async function getGamePgn(
   eventId: string,
   room: RoomInfo,
   roundSlug: string,
   gameSlug: string
-): Promise<string> {
+): Promise<BoardWithPgn> {
   return new Promise((resolve, reject) => {
     // XXX: We are trying to disguise ourselves as a browser here.
     request(
@@ -116,7 +122,11 @@ async function getGamePgn(
           game.header('Round', roundSlug);
           game.header('Result', gameInfo.game.result);
           game.header('Board', gameInfo.game.board.toString());
-          resolve(game.pgn());
+
+          resolve({
+            board: gameInfo.game.board,
+            pgn: game.pgn(),
+          });
         } catch (e) {
           reject(
             `Error parsing game ${gameSlug} in round ${roundSlug} in event ${eventId}: ${e}`
@@ -132,10 +142,10 @@ export default async function fetchChessCom(source: Source): Promise<string> {
     /^chesscom:([0-9A-Za-z\-]+)\/([0-9A-Za-z\-]+)$/
   );
   if (!match) throw `Invalid chesscom URL: ${source.url}`;
+  // The URL is of form `chesscom:<event_id>/<round_slug>`
+  const [_, eventId, roundSlug] = match;
 
   return new Promise((resolve, reject) => {
-    // The URL is of form `chesscom:<event_id>/<round_slug>`
-    const [_, eventId, roundSlug] = match;
     // XXX: We are trying to disguise ourselves as a browser here.
     // TODO: It would make sense to cache this since this data is very unlikely to change.
     request(
@@ -159,20 +169,20 @@ export default async function fetchChessCom(source: Source): Promise<string> {
             reject(`Round ${roundSlug} not found in event ${eventId}`);
             return;
           }
-          let pgn = '';
-          for (const game of eventInfo.games) {
-            if (game.roundId === round.id) {
-              const gamePgn = await getGamePgn(
-                eventId,
-                eventInfo,
-                roundSlug,
-                game.slug
-              );
-              pgn += gamePgn;
-              pgn += '\n\n';
-            }
-          }
-          resolve(pgn);
+          // Fetch all games asynchronously to speed things up.
+          const pgns = await Promise.all(
+            eventInfo.games
+              .filter((g) => g.roundId === round.id)
+              .map((game) =>
+                getGamePgn(eventId, eventInfo, roundSlug, game.slug)
+              )
+          );
+          resolve(
+            pgns
+              .sort((a, b) => a.board - b.board)
+              .map((g) => g.pgn)
+              .join('\n\n')
+          );
         } catch (e) {
           reject(e);
         }
