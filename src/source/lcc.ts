@@ -81,69 +81,42 @@ export default async function fetchLcc(source: Source): Promise<string> {
     `https://1.pool.livechesscloud.com/get/${tournamentId}/tournament.json`
   );
   const roundInfo = await getRound(tournamentId, round);
-  let games: { [key: number]: Game } = {};
+  const games: Game[] = [];
   // TODO: fetch games  asynchronously
-  for (
-    let currGame = 1;
-    currGame <= tournament.rounds[round - 1].count;
-    currGame++
-  ) {
-    games[currGame] = await getGame(tournamentId, round, currGame);
+  for (let i = 1; i <= tournament.rounds[round - 1].count; i++) {
+    games.push(await getGame(tournamentId, round, i));
   }
   let pgn = '';
-  for (let [board, game] of Object.entries(games)) {
-    let chess = new Chess();
+  for (const [boardIndex, game] of games.entries()) {
+    const pairing = roundInfo.pairings[boardIndex];
+    const chess = new Chess();
     chess.header('Event', tournament.name);
-    chess.header(
-      'White',
-      getPlayerName(roundInfo.pairings[parseInt(board) - 1].white)
-    );
-    if (
-      typeof roundInfo.pairings[parseInt(board) - 1].white.title === 'string'
-    ) {
-      chess.header(
-        'WhiteTitle',
-        roundInfo.pairings[parseInt(board) - 1].white.title as string
-      );
+    chess.header('White', getPlayerName(pairing.white));
+    chess.header('Black', getPlayerName(pairing.black));
+    if (pairing.white.title) {
+      chess.header('WhiteTitle', pairing.white.title);
     }
-    if (
-      typeof roundInfo.pairings[parseInt(board) - 1].black.title === 'string'
-    ) {
-      chess.header(
-        'BlackTitle',
-        roundInfo.pairings[parseInt(board) - 1].black.title as string
-      );
+    if (pairing.black.title) {
+      chess.header('BlackTitle', pairing.black.title);
     }
-    chess.header(
-      'Black',
-      getPlayerName(roundInfo.pairings[parseInt(board) - 1].black)
-    );
-    chess.header('Result', roundInfo.pairings[parseInt(board) - 1].result);
+    chess.header('Result', pairing.result);
     // This field isn't necessarily in PGN format and can hold any random gibberish string as well
-    // In  case this does not contain the correct data, we can replace it using addReplacement command
+    // In case this does not contain the correct data, we can replace it using addReplacement command
     chess.header('TimeControl', tournament.timecontrol);
     chess.header('Round', round.toString());
-    chess.header('Board', board);
-    for (let move of game.moves) {
+    chess.header('Board', (boardIndex + 1).toString());
+    for (const move of game.moves) {
       const [sat, timeStringInSecs] = move.split(' ');
       chess.move(sat);
-      let time: number = NaN;
-      if (typeof timeStringInSecs === 'undefined') {
-      } else if (timeStringInSecs.startsWith('+')) {
-        // The time info is actually missing. It's mysterious what that '+' thing means in the broadcast data
-      } else {
-        time = parseInt(timeStringInSecs);
-      }
-
-      if (!isNaN(time)) {
+      if (timeStringInSecs !== undefined && !timeStringInSecs.startsWith('+')) {
+        const time = parseInt(timeStringInSecs);
         const hours = Math.floor(time / 3600);
         const minutes = Math.floor((time / 60) % 60);
         const seconds = time % 60;
         chess.set_comment(`[%clk ${hours}:${minutes}:${seconds}]`);
       }
     }
-    pgn += chess.pgn();
-    pgn += '\n\n';
+    pgn += chess.pgn() + '\n\n';
   }
   return pgn;
 }
