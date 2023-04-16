@@ -157,9 +157,22 @@ export const regexEscape = (s: string) =>
 
 export const sleep = promisify(setTimeout);
 
-export async function fetchJson<T>(url: string): Promise<T> {
+export async function fetchJson<T>(
+  urlOrParams:
+    | string
+    | {
+        uri: string;
+        method?: 'GET' | 'POST';
+        body?: string;
+        gzip?: boolean;
+        headers?: { [key: string]: string };
+      }
+): Promise<T> {
+  const url = typeof urlOrParams === 'string' ? urlOrParams : urlOrParams.uri;
+  const params =
+    typeof urlOrParams === 'string' ? { uri: urlOrParams } : urlOrParams;
   return new Promise<T>((resolve, reject) => {
-    request(url, (err, res, body) => {
+    request(params, (err, res, body) => {
       if (!body || err || res.statusCode !== 200) {
         reject(`ERROR ${res.statusCode} fetching ${url} err:${err}`);
         return;
