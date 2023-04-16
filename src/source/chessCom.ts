@@ -24,6 +24,7 @@ const chessComHeaders = {
   'Sec-Fetch-Site': 'cross-site',
   'Content-Length': '0',
 };
+
 // NOTE: these types don't contain all the fields, just the ones we care about.
 interface Round {
   id: number;
@@ -70,12 +71,17 @@ interface GameInfo {
   moves: Move[];
 }
 
+interface BoardWithPgn {
+  board: number;
+  pgn: string;
+}
+
 async function getGamePgn(
   eventId: string,
   room: RoomInfo,
   roundSlug: string,
   gameSlug: string
-): Promise<string> {
+): Promise<BoardWithPgn> {
   // XXX: We are trying to disguise ourselves as a browser here.
   const gameInfo: GameInfo = await fetchJson({
     uri: `https://nxt.chessbomb.com/events/api/game/${eventId}/${roundSlug}/${gameSlug}`,
@@ -107,7 +113,10 @@ async function getGamePgn(
   game.header('Round', roundSlug);
   game.header('Result', gameInfo.game.result);
   game.header('Board', gameInfo.game.board.toString());
-  return game.pgn();
+  return {
+    board: gameInfo.game.board,
+    pgn: game.pgn(),
+  };
 }
 
 export default async function fetchChessCom(source: Source): Promise<string> {
@@ -131,17 +140,14 @@ export default async function fetchChessCom(source: Source): Promise<string> {
   if (round === undefined) {
     throw `Round ${roundSlug} not found in event ${eventId}`;
   }
-  let pgn = '';
-  for (const game of eventInfo.games) {
-    if (game.roundId === round.id) {
-      const gamePgn = await getGamePgn(
-        eventId,
-        eventInfo,
-        roundSlug,
-        game.slug
-      );
-      pgn += gamePgn + '\n\n';
-    }
-  }
-  return pgn;
+  // Fetch all games asynchronously to speed things up.
+  const pgns = await Promise.all(
+    eventInfo.games
+      .filter((g) => g.roundId === round.id)
+      .map((game) => getGamePgn(eventId, eventInfo, roundSlug, game.slug))
+  );
+  return pgns
+    .sort((a, b) => a.board - b.board)
+    .map((g) => g.pgn)
+    .join('\n\n');
 }
