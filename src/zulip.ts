@@ -164,6 +164,16 @@ export class Zulip {
         this.say(`Missing or invalid round: ${round}`);
         return;
       }
+    } else if (url.startsWith('lcc:')) {
+      const [eventId, round] = url.slice('lcc:'.length).split('/');
+      if (eventId === undefined || !eventId.match(/^[0-9a-z\-]+$/)) {
+        this.say(`Missing or invalid event ID: ${eventId}`);
+        return;
+      }
+      if (round === undefined || !round.match(/^[0-9]+$/)) {
+        this.say(`Missing or invalid round: ${round}`);
+        return;
+      }
     } else if (!isURL(url)) {
       this.say(
         `${url} is not a valid URL or Lichess game ID list (doesn't start with lichess:)`

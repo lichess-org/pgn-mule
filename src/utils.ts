@@ -1,4 +1,5 @@
 import { Chess } from 'chess.js';
+import request from 'request';
 import { promisify } from 'util';
 
 export interface Source {
@@ -155,3 +156,33 @@ export const regexEscape = (s: string) =>
   s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 export const sleep = promisify(setTimeout);
+
+export async function fetchJson<T>(
+  urlOrParams:
+    | string
+    | {
+        uri: string;
+        method?: 'GET' | 'POST';
+        body?: string;
+        gzip?: boolean;
+        headers?: { [key: string]: string };
+      }
+): Promise<T> {
+  const url = typeof urlOrParams === 'string' ? urlOrParams : urlOrParams.uri;
+  const params =
+    typeof urlOrParams === 'string' ? { uri: urlOrParams } : urlOrParams;
+  return new Promise<T>((resolve, reject) => {
+    request(params, (err, res, body) => {
+      if (!body || err || res.statusCode !== 200) {
+        reject(`ERROR ${res.statusCode} fetching ${url} err:${err}`);
+        return;
+      }
+
+      try {
+        resolve(JSON.parse(body));
+      } catch (e) {
+        reject(`ERROR parsing JSON from ${url}: ${e}`);
+      }
+    });
+  });
+}

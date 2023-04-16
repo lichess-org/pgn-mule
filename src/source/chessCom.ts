@@ -1,7 +1,7 @@
 import { Chess } from 'chess.js';
 import request from 'request';
 import { userAgent } from '../config';
-import { Source } from '../utils';
+import { Source, fetchJson } from '../utils';
 
 // Add missing type for chess.js
 declare module 'chess.js' {
@@ -82,59 +82,41 @@ async function getGamePgn(
   roundSlug: string,
   gameSlug: string
 ): Promise<BoardWithPgn> {
-  return new Promise((resolve, reject) => {
-    // XXX: We are trying to disguise ourselves as a browser here.
-    request(
-      {
-        uri: `https://nxt.chessbomb.com/events/api/game/${eventId}/${roundSlug}/${gameSlug}`,
-        method: 'POST',
-        headers: chessComHeaders,
-        gzip: true,
-      },
-      (err, res, body: string) => {
-        if (!body || err || res.statusCode !== 200) {
-          reject(`ERROR ${res.statusCode} err:${err}`);
-          return;
-        }
-        try {
-          const gameInfo = JSON.parse(body) as GameInfo;
-          const game = new Chess();
-          for (const move of gameInfo.moves) {
-            // Chess.com mentions both long algebraic notation and algebraic notation.separated by a underscore '_'
-            // We only need either one of it
-            const [_, san] = move.cbn.split('_');
-            game.move(san);
-            const hours = Math.floor(move.clock / (3600 * 1000));
-            const minutes = Math.floor((move.clock / (60 * 1000)) % 60);
-            const seconds = Math.floor((move.clock / 1000) % 60);
-            game.set_comment(`[%clk ${hours}:${minutes}:${seconds}]`);
-          }
-          game.header('Event', room.name);
-          game.header('White', gameInfo.game.white.name);
-          game.header('Black', gameInfo.game.black.name);
-          game.header('WhiteElo', gameInfo.game.whiteElo.toString());
-          game.header('WhiteTitle', gameInfo.game.whiteTitle);
-          game.header('WhiteFideId', gameInfo.game.white.fideId.toString());
-          game.header('BlackElo', gameInfo.game.blackElo.toString());
-          game.header('BlackTitle', gameInfo.game.blackTitle);
-          game.header('BlackFideId', gameInfo.game.black.fideId.toString());
-          game.header('TimeControl', room.room.timeControl);
-          game.header('Round', roundSlug);
-          game.header('Result', gameInfo.game.result);
-          game.header('Board', gameInfo.game.board.toString());
-
-          resolve({
-            board: gameInfo.game.board,
-            pgn: game.pgn(),
-          });
-        } catch (e) {
-          reject(
-            `Error parsing game ${gameSlug} in round ${roundSlug} in event ${eventId}: ${e}`
-          );
-        }
-      }
-    );
+  // XXX: We are trying to disguise ourselves as a browser here.
+  const gameInfo: GameInfo = await fetchJson({
+    uri: `https://nxt.chessbomb.com/events/api/game/${eventId}/${roundSlug}/${gameSlug}`,
+    method: 'POST',
+    headers: chessComHeaders,
+    gzip: true,
   });
+  const game = new Chess();
+  for (const move of gameInfo.moves) {
+    // Chess.com mentions both long algebraic notation and algebraic notation.separated by a underscore '_'
+    // We only need either one of it
+    const [_, san] = move.cbn.split('_');
+    game.move(san);
+    const hours = Math.floor(move.clock / (3600 * 1000));
+    const minutes = Math.floor((move.clock / (60 * 1000)) % 60);
+    const seconds = Math.floor((move.clock / 1000) % 60);
+    game.set_comment(`[%clk ${hours}:${minutes}:${seconds}]`);
+  }
+  game.header('Event', room.name);
+  game.header('White', gameInfo.game.white.name);
+  game.header('Black', gameInfo.game.black.name);
+  game.header('WhiteElo', gameInfo.game.whiteElo.toString());
+  game.header('WhiteTitle', gameInfo.game.whiteTitle);
+  game.header('WhiteFideId', gameInfo.game.white.fideId.toString());
+  game.header('BlackElo', gameInfo.game.blackElo.toString());
+  game.header('BlackTitle', gameInfo.game.blackTitle);
+  game.header('BlackFideId', gameInfo.game.black.fideId.toString());
+  game.header('TimeControl', room.room.timeControl);
+  game.header('Round', roundSlug);
+  game.header('Result', gameInfo.game.result);
+  game.header('Board', gameInfo.game.board.toString());
+  return {
+    board: gameInfo.game.board,
+    pgn: game.pgn(),
+  };
 }
 
 export default async function fetchChessCom(source: Source): Promise<string> {
@@ -145,48 +127,27 @@ export default async function fetchChessCom(source: Source): Promise<string> {
   // The URL is of form `chesscom:<event_id>/<round_slug>`
   const [_, eventId, roundSlug] = match;
 
-  return new Promise((resolve, reject) => {
-    // XXX: We are trying to disguise ourselves as a browser here.
-    // TODO: It would make sense to cache this since this data is very unlikely to change.
-    request(
-      {
-        uri: `https://nxt.chessbomb.com/events/api/room/${eventId}`,
-        method: 'POST',
-        headers: chessComHeaders,
-        gzip: true,
-      },
-      async (err, res, body: string) => {
-        if (!body || err || res.statusCode !== 200) {
-          reject(`ERROR ${res.statusCode} err:${err}`);
-          return;
-        }
-        try {
-          const eventInfo = JSON.parse(body) as RoomInfo;
-          const round = eventInfo.rounds.find(
-            (r: Round) => r.slug === roundSlug
-          );
-          if (round === undefined) {
-            reject(`Round ${roundSlug} not found in event ${eventId}`);
-            return;
-          }
-          // Fetch all games asynchronously to speed things up.
-          const pgns = await Promise.all(
-            eventInfo.games
-              .filter((g) => g.roundId === round.id)
-              .map((game) =>
-                getGamePgn(eventId, eventInfo, roundSlug, game.slug)
-              )
-          );
-          resolve(
-            pgns
-              .sort((a, b) => a.board - b.board)
-              .map((g) => g.pgn)
-              .join('\n\n')
-          );
-        } catch (e) {
-          reject(e);
-        }
-      }
-    );
+  // XXX: We are trying to disguise ourselves as a browser here.
+  // TODO: It would make sense to cache this since this data is very unlikely to change.
+
+  const eventInfo: RoomInfo = await fetchJson({
+    uri: `https://nxt.chessbomb.com/events/api/room/${eventId}`,
+    method: 'POST',
+    headers: chessComHeaders,
+    gzip: true,
   });
+  const round = eventInfo.rounds.find((r: Round) => r.slug === roundSlug);
+  if (round === undefined) {
+    throw `Round ${roundSlug} not found in event ${eventId}`;
+  }
+  // Fetch all games asynchronously to speed things up.
+  const pgns = await Promise.all(
+    eventInfo.games
+      .filter((g) => g.roundId === round.id)
+      .map((game) => getGamePgn(eventId, eventInfo, roundSlug, game.slug))
+  );
+  return pgns
+    .sort((a, b) => a.board - b.board)
+    .map((g) => g.pgn)
+    .join('\n\n');
 }
