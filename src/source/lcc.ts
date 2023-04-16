@@ -1,6 +1,5 @@
 import { Chess } from 'chess.js';
-import request from 'request';
-import { Source } from '../utils';
+import { Source, fetchJson } from '../utils';
 
 // NOTE: these types don't contain all the fields, just the ones we care about.
 
@@ -48,17 +47,10 @@ interface Game {
   chess960: number;
   moves: Array<string>;
 }
-
 async function getRound(tournamentId: string, round: number): Promise<Round> {
-  return new Promise((resolve, reject) => {
-    request(
-      `https://1.pool.livechesscloud.com/get/${tournamentId}/round-${round}/index.json`,
-      async (err, res, body) => {
-        if (err) reject(err);
-        else resolve(JSON.parse(body));
-      }
-    );
-  });
+  return await fetchJson(
+    `https://1.pool.livechesscloud.com/get/${tournamentId}/round-${round}/index.json`
+  );
 }
 
 async function getGame(
@@ -66,15 +58,9 @@ async function getGame(
   round: number,
   game: number
 ): Promise<Game> {
-  return new Promise((resolve, reject) => {
-    request(
-      `https://1.pool.livechesscloud.com/get/${tournamentId}/round-${round}/game-${game}.json`,
-      async (err, res, body) => {
-        if (err) reject(err);
-        else resolve(JSON.parse(body));
-      }
-    );
-  });
+  return await fetchJson(
+    `https://1.pool.livechesscloud.com/get/${tournamentId}/round-${round}/game-${game}.json`
+  );
 }
 
 function getPlayerName(player: Player): string {
@@ -90,86 +76,74 @@ export default async function fetchLcc(source: Source): Promise<string> {
   if (!match) throw `Invalid lcc URL: ${source.url}`;
   const tournamentId = match[1];
   const round = parseInt(match[2]);
-  return new Promise((resolve, reject) => {
-    request(
-      `https://1.pool.livechesscloud.com/get/${tournamentId}/tournament.json`,
-      async (err, res, body) => {
-        if (err) reject(err);
-        else {
-          const tournament: Tournament = JSON.parse(body);
-          const roundInfo = await getRound(tournamentId, round);
-          let games: { [key: number]: Game } = {};
-          // TODO: fetch games  asynchronously
-          for (
-            let currGame = 1;
-            currGame <= tournament.rounds[round - 1].count;
-            currGame++
-          ) {
-            games[currGame] = await getGame(tournamentId, round, currGame);
-          }
-          let pgn = '';
-          for (let [board, game] of Object.entries(games)) {
-            let chess = new Chess();
-            chess.header('Event', tournament.name);
-            chess.header(
-              'White',
-              getPlayerName(roundInfo.pairings[parseInt(board) - 1].white)
-            );
-            if (
-              typeof roundInfo.pairings[parseInt(board) - 1].white.title ===
-              'string'
-            ) {
-              chess.header(
-                'WhiteTitle',
-                roundInfo.pairings[parseInt(board) - 1].white.title as string
-              );
-            }
-            if (
-              typeof roundInfo.pairings[parseInt(board) - 1].black.title ===
-              'string'
-            ) {
-              chess.header(
-                'BlackTitle',
-                roundInfo.pairings[parseInt(board) - 1].black.title as string
-              );
-            }
-            chess.header(
-              'Black',
-              getPlayerName(roundInfo.pairings[parseInt(board) - 1].black)
-            );
-            chess.header(
-              'Result',
-              roundInfo.pairings[parseInt(board) - 1].result
-            );
-            // This field isn't necessarily in PGN format and can hold any random gibberish string as well
-            // In  case this does not contain the correct data, we can replace it using addReplacement command
-            chess.header('TimeControl', tournament.timecontrol);
-            chess.header('Round', round.toString());
-            chess.header('Board', board);
-            for (let move of game.moves) {
-              const [sat, timeStringInSecs] = move.split(' ');
-              chess.move(sat);
-              let time: number = NaN;
-              if (typeof timeStringInSecs === 'undefined') {
-              } else if (timeStringInSecs.startsWith('+')) {
-                // The time info is actually missing. It's mysterious what that '+' thing means in the broadcast data
-              } else {
-                time = parseInt(timeStringInSecs);
-              }
 
-              if (!isNaN(time)) {
-                const hours = Math.floor(time / 3600);
-                const minutes = Math.floor((time / 60) % 60);
-                const seconds = time % 60;
-                chess.set_comment(`[%clk ${hours}:${minutes}:${seconds}]`);
-              }
-            }
-            pgn += chess.pgn();
-            pgn += '\n\n';
-          }
-          resolve(pgn);
-        }
-      }
+  const tournament: Tournament = await fetchJson(
+    `https://1.pool.livechesscloud.com/get/${tournamentId}/tournament.json`
+  );
+  const roundInfo = await getRound(tournamentId, round);
+  let games: { [key: number]: Game } = {};
+  // TODO: fetch games  asynchronously
+  for (
+    let currGame = 1;
+    currGame <= tournament.rounds[round - 1].count;
+    currGame++
+  ) {
+    games[currGame] = await getGame(tournamentId, round, currGame);
+  }
+  let pgn = '';
+  for (let [board, game] of Object.entries(games)) {
+    let chess = new Chess();
+    chess.header('Event', tournament.name);
+    chess.header(
+      'White',
+      getPlayerName(roundInfo.pairings[parseInt(board) - 1].white)
     );
-  });
+    if (
+      typeof roundInfo.pairings[parseInt(board) - 1].white.title === 'string'
+    ) {
+      chess.header(
+        'WhiteTitle',
+        roundInfo.pairings[parseInt(board) - 1].white.title as string
+      );
+    }
+    if (
+      typeof roundInfo.pairings[parseInt(board) - 1].black.title === 'string'
+    ) {
+      chess.header(
+        'BlackTitle',
+        roundInfo.pairings[parseInt(board) - 1].black.title as string
+      );
+    }
+    chess.header(
+      'Black',
+      getPlayerName(roundInfo.pairings[parseInt(board) - 1].black)
+    );
+    chess.header('Result', roundInfo.pairings[parseInt(board) - 1].result);
+    // This field isn't necessarily in PGN format and can hold any random gibberish string as well
+    // In  case this does not contain the correct data, we can replace it using addReplacement command
+    chess.header('TimeControl', tournament.timecontrol);
+    chess.header('Round', round.toString());
+    chess.header('Board', board);
+    for (let move of game.moves) {
+      const [sat, timeStringInSecs] = move.split(' ');
+      chess.move(sat);
+      let time: number = NaN;
+      if (typeof timeStringInSecs === 'undefined') {
+      } else if (timeStringInSecs.startsWith('+')) {
+        // The time info is actually missing. It's mysterious what that '+' thing means in the broadcast data
+      } else {
+        time = parseInt(timeStringInSecs);
+      }
+
+      if (!isNaN(time)) {
+        const hours = Math.floor(time / 3600);
+        const minutes = Math.floor((time / 60) % 60);
+        const seconds = time % 60;
+        chess.set_comment(`[%clk ${hours}:${minutes}:${seconds}]`);
+      }
+    }
+    pgn += chess.pgn();
+    pgn += '\n\n';
+  }
+  return pgn;
 }
