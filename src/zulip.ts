@@ -1,4 +1,4 @@
-import { isURL } from 'validator';
+import isURL from 'validator/lib/isURL';
 import zulip from 'zulip-js';
 import {
   maxDelaySeconds,
@@ -153,6 +153,26 @@ export class Zulip {
           );
           return;
         }
+      }
+    } else if (url.startsWith('chesscom:')) {
+      const [eventId, round] = url.slice('chesscom:'.length).split('/');
+      if (eventId === undefined || !eventId.match(/^[0-9A-Za-z\-]+$/)) {
+        this.say(`Missing or invalid event ID: ${eventId}`);
+        return;
+      }
+      if (round === undefined || !round.match(/^[0-9A-Za-z\-]+$/)) {
+        this.say(`Missing or invalid round: ${round}`);
+        return;
+      }
+    } else if (url.startsWith('lcc:')) {
+      const [eventId, round] = url.slice('lcc:'.length).split('/');
+      if (eventId === undefined || !eventId.match(/^[0-9a-z\-]+$/)) {
+        this.say(`Missing or invalid event ID: ${eventId}`);
+        return;
+      }
+      if (round === undefined || !round.match(/^[0-9]+$/)) {
+        this.say(`Missing or invalid round: ${round}`);
+        return;
       }
     } else if (!isURL(url)) {
       this.say(

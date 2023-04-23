@@ -1,4 +1,5 @@
 import { Chess } from 'chess.js';
+import request from 'request';
 import { promisify } from 'util';
 
 export interface Source {
@@ -98,11 +99,15 @@ export function filterGames(
       continue;
 
     if (rounds) {
-      const match = pgn.match(/\[Round "(\d+)["\.]/);
+      const match = pgn.match(/\[Round "(\d+)(?:\.(\d+))?"/);
       if (!match) continue;
       const round = parseInt(match[1]);
-      for (const [i, [min, max]] of rounds.entries()) {
-        if (min <= round && round <= max) {
+      const board = match[2] ? parseInt(match[2]) : undefined;
+      for (const [i, [filterRound, filterBoard]] of rounds.entries()) {
+        if (
+          round === filterRound &&
+          (filterBoard === undefined || board === filterBoard)
+        ) {
           groups[i].push(pgn);
           break;
         }
@@ -115,9 +120,13 @@ export function filterGames(
   if (sliceQuery) {
     if (!Array.isArray(sliceQuery)) sliceQuery = [sliceQuery];
     for (const i in groups) {
-      const parts = sliceQuery[i].split('-').map((x: string) => parseInt(x));
-      if (parts[1]) groups[i] = groups[i].slice(parts[0] - 1, parts[1]);
-      else groups[i] = groups[i].slice(0, parts[0]);
+      if (!sliceQuery[i]) continue;
+      const group: string[][] = [];
+      for (const part of sliceQuery[i].split(',')) {
+        const [from, to] = part.split('-').map((x: string) => parseInt(x));
+        group.push(groups[i].slice(from - 1, to ?? from));
+      }
+      groups[i] = Array.prototype.concat(...group);
     }
   }
 
@@ -126,12 +135,10 @@ export function filterGames(
 
 const parseRoundsQuery = (
   query?: string | string[]
-): [number, number][] | undefined => {
+): number[][] | undefined => {
   if (!query) return undefined;
   if (!Array.isArray(query)) query = [query];
-  return query
-    .map((r) => r.split('-').map((x) => parseInt(x)))
-    .map((r) => (r.length > 1 ? r : [r[0], r[0]])) as any;
+  return query.map((r) => r.split('.').map((x) => parseInt(x)));
 };
 
 const markdownTableRow = (row: string[]) => `| ${row.join(' | ')} |`;
@@ -149,3 +156,33 @@ export const regexEscape = (s: string) =>
   s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 export const sleep = promisify(setTimeout);
+
+export async function fetchJson<T>(
+  urlOrParams:
+    | string
+    | {
+        uri: string;
+        method?: 'GET' | 'POST';
+        body?: string;
+        gzip?: boolean;
+        headers?: { [key: string]: string };
+      }
+): Promise<T> {
+  const url = typeof urlOrParams === 'string' ? urlOrParams : urlOrParams.uri;
+  const params =
+    typeof urlOrParams === 'string' ? { uri: urlOrParams } : urlOrParams;
+  return new Promise<T>((resolve, reject) => {
+    request(params, (err, res, body) => {
+      if (!body || err || res.statusCode !== 200) {
+        reject(`ERROR ${res.statusCode} fetching ${url} err:${err}`);
+        return;
+      }
+
+      try {
+        resolve(JSON.parse(body));
+      } catch (e) {
+        reject(`ERROR parsing JSON from ${url}: ${e}`);
+      }
+    });
+  });
+}
