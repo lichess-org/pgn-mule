@@ -89,6 +89,7 @@ export default async function fetchLcc(source: Source): Promise<string> {
   let pgn = '';
   for (const [boardIndex, game] of games.entries()) {
     const pairing = roundInfo.pairings[boardIndex];
+    if (!pairing.white || !pairing.black) continue;
     const chess = new Chess();
     chess.header('Event', tournament.name);
     chess.header('White', getPlayerName(pairing.white));
