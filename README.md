@@ -20,7 +20,19 @@ listReplacements
 delReplacement 0
 ```
 
-`<source-url>` can also be `lichess:gameId1,gameId2` (and so on) to poll Lichess games.
+## Alternative sources
+
+### Lichess game
+
+Use `lichess:gameId1,gameId2` (and so on) as `<source-url>` to poll Lichess games. This can only handle polling 30 games per second (fewer if faster, more if slower) at maximum, probably fewer for reasonable stability.
+
+### LCC
+
+Use `lcc:<tournament id>/<round number>` as `<source-url>`.
+
+### Chess.com
+
+Use `chesscom:<event id>/<round id>` as `<source-url>`.
 
 ## QueryString Options:
 
