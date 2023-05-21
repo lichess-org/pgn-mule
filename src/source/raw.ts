@@ -15,8 +15,9 @@ export default async function fetchRaw(source: Source): Promise<string> {
         },
         encoding: null,
       },
-      (err, res, body: Buffer) => {
-        if (body.length && !err && res.statusCode === 200) {
+      (err, res, body?: Buffer) => {
+        if (!body) reject('no response body');
+        else if (body.length && !err && res.statusCode === 200) {
           const encoding = chardet.detect(body) ?? 'utf-8';
           try {
             resolve(new TextDecoder(encoding).decode(body));
