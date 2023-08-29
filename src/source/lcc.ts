@@ -1,5 +1,8 @@
 import { Chess } from 'chess.js';
 import { Source, fetchJson } from '../utils';
+import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
+dayjs.extend(duration);
 
 // NOTE: these types don't contain all the fields, just the ones we care about.
 
@@ -110,10 +113,10 @@ export default async function fetchLcc(source: Source): Promise<string> {
       const [sat, timeStringInSecs] = move.split(' ');
       chess.move(sat);
       if (timeStringInSecs !== undefined && !timeStringInSecs.startsWith('+')) {
-        const time = parseInt(timeStringInSecs);
-        const hours = Math.floor(time / 3600);
-        const minutes = Math.floor((time / 60) % 60);
-        const seconds = time % 60;
+        const time = dayjs.duration(parseInt(timeStringInSecs), "seconds")
+        const hours = time.hours();
+        const minutes = time.minutes();
+        const seconds = time.seconds();
         chess.set_comment(`[%clk ${hours}:${minutes}:${seconds}]`);
       }
     }
