@@ -51,9 +51,6 @@
     },
     "extensionsToTreatAsEsm": [
       ".ts"
-    ],
-    "moduleNameMapper": {
-      "^(.*)\\.js$": "$1"
-    }
+    ]
   }
 }

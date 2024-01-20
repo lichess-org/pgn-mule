@@ -64,7 +64,7 @@
     // "emitDecoratorMetadata": true,         /* Enables experimental support for emitting type metadata for decorators. */
 
     /* Advanced Options */
-    // "resolveJsonModule": true /* Include modules imported with '.json' extension */,
+    "resolveJsonModule": true /* Include modules imported with '.json' extension */,
     "forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */,
   },
 }

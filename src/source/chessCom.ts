@@ -44,8 +44,8 @@ interface Game {
   slug: string;
   blackElo: number;
   whiteElo: number;
-  blackTitle: string;
-  whiteTitle: string;
+  blackTitle?: string;
+  whiteTitle?: string;
   white: Player;
   black: Player;
   result: string;
@@ -65,7 +65,7 @@ interface RoomInfo {
   games: Game[];
 }
 // https://nxt.chessbomb.com/events/api/game/<event_id>/<round_slug>/<round_slug>/<game_slug>
-interface GameInfo {
+export interface GameInfo {
   game: Game;
   room: Room;
   moves: Move[];
@@ -74,6 +74,47 @@ interface GameInfo {
 interface BoardWithPgn {
   board: number;
   pgn: string;
+}
+
+export function analyseGamePgn(
+  event: string,
+  timeControl: string,
+  roundSlug: string,
+  gameInfo: GameInfo,
+): BoardWithPgn {
+  const game = new Chess();
+  for (const move of gameInfo.moves) {
+    // Chess.com mentions both long algebraic notation and algebraic notation.separated by a underscore '_'
+    // We only need either one of it
+    const [_, san] = move.cbn.split('_');
+    console.log(san);
+    game.move(san);
+    const hours = Math.floor(move.clock / (3600 * 1000));
+    const minutes = Math.floor((move.clock / (60 * 1000)) % 60);
+    const seconds = Math.floor((move.clock / 1000) % 60);
+    game.set_comment(`[%clk ${hours}:${minutes}:${seconds}]`);
+  }
+  game.header('Event', event);
+  game.header('White', gameInfo.game.white.name);
+  game.header('Black', gameInfo.game.black.name);
+  game.header('WhiteElo', gameInfo.game.whiteElo.toString());
+  if (gameInfo.game.whiteTitle) {
+    game.header('WhiteTitle', gameInfo.game.whiteTitle);
+  }
+  game.header('WhiteFideId', gameInfo.game.white.fideId.toString());
+  game.header('BlackElo', gameInfo.game.blackElo.toString());
+  if (gameInfo.game.blackTitle) {
+    game.header('BlackTitle', gameInfo.game.blackTitle)
+  };
+  game.header('BlackFideId', gameInfo.game.black.fideId.toString());
+  game.header('TimeControl', timeControl);
+  game.header('Round', roundSlug);
+  game.header('Result', gameInfo.game.result);
+  game.header('Board', gameInfo.game.board.toString());
+  return {
+    board: gameInfo.game.board,
+    pgn: game.pgn(),
+  };
 }
 
 async function getGamePgn(
@@ -89,34 +130,7 @@ async function getGamePgn(
     headers: chessComHeaders,
     gzip: true,
   });
-  const game = new Chess();
-  for (const move of gameInfo.moves) {
-    // Chess.com mentions both long algebraic notation and algebraic notation.separated by a underscore '_'
-    // We only need either one of it
-    const [_, san] = move.cbn.split('_');
-    game.move(san);
-    const hours = Math.floor(move.clock / (3600 * 1000));
-    const minutes = Math.floor((move.clock / (60 * 1000)) % 60);
-    const seconds = Math.floor((move.clock / 1000) % 60);
-    game.set_comment(`[%clk ${hours}:${minutes}:${seconds}]`);
-  }
-  game.header('Event', room.name);
-  game.header('White', gameInfo.game.white.name);
-  game.header('Black', gameInfo.game.black.name);
-  game.header('WhiteElo', gameInfo.game.whiteElo.toString());
-  game.header('WhiteTitle', gameInfo.game.whiteTitle);
-  game.header('WhiteFideId', gameInfo.game.white.fideId.toString());
-  game.header('BlackElo', gameInfo.game.blackElo.toString());
-  game.header('BlackTitle', gameInfo.game.blackTitle);
-  game.header('BlackFideId', gameInfo.game.black.fideId.toString());
-  game.header('TimeControl', room.room.timeControl);
-  game.header('Round', roundSlug);
-  game.header('Result', gameInfo.game.result);
-  game.header('Board', gameInfo.game.board.toString());
-  return {
-    board: gameInfo.game.board,
-    pgn: game.pgn(),
-  };
+  return analyseGamePgn(room.name, room.room.timeControl, roundSlug, gameInfo);
 }
 
 export default async function fetchChessCom(source: Source): Promise<string> {
