@@ -1,4 +1,5 @@
 import { Chess } from 'chess.js';
+import { makePgn, defaultGame, PgnNodeData, Game } from 'chessops/pgn';
 import request from 'request';
 import { userAgent } from '../config';
 import { Source, fetchJson } from '../utils';
@@ -39,7 +40,7 @@ interface Player {
   title: string;
   fideId: number;
 }
-interface Game {
+interface GameRes {
   roundId: number;
   slug: string;
   blackElo: number;
@@ -62,11 +63,11 @@ interface RoomInfo {
   room: Room;
   name: string;
   rounds: Round[];
-  games: Game[];
+  games: GameRes[];
 }
 // https://nxt.chessbomb.com/events/api/game/<event_id>/<round_slug>/<round_slug>/<game_slug>
 export interface GameInfo {
-  game: Game;
+  game: GameRes;
   room: Room;
   moves: Move[];
 }
@@ -83,6 +84,26 @@ export function analyseGamePgn(
   gameInfo: GameInfo,
 ): BoardWithPgn {
   const game = new Chess();
+  const headers = new Map<string, string>();
+  headers['Event'] = event;
+  headers['White'] = gameInfo.game.white.name;
+  headers['Black'] = gameInfo.game.black.name;
+  headers['WhiteElo'] = gameInfo.game.whiteElo.toString();
+  if (gameInfo.game.whiteTitle) {
+    headers['WhiteTitle'] = gameInfo.game.whiteTitle;
+  }
+  headers['WhiteFideId'] = gameInfo.game.white.fideId.toString();
+  headers['BlackElo'] = gameInfo.game.blackElo.toString();
+  if (gameInfo.game.blackTitle) {
+    headers['BlackTitle'] = gameInfo.game.blackTitle;
+  }
+  headers['BlackFideId'] = gameInfo.game.black.fideId.toString();
+  headers['TimeControl'] = timeControl;
+  headers['Round'] = roundSlug;
+  headers['Result'] = gameInfo.game.result;
+  headers['Board'] = gameInfo.game.board.toString();
+  const chessGame: Game<PgnNodeData> = defaultGame(() => headers);
+
   for (const move of gameInfo.moves) {
     // Chess.com mentions both long algebraic notation and algebraic notation.separated by a underscore '_'
     // We only need either one of it
@@ -94,23 +115,6 @@ export function analyseGamePgn(
     const seconds = Math.floor((move.clock / 1000) % 60);
     game.set_comment(`[%clk ${hours}:${minutes}:${seconds}]`);
   }
-  game.header('Event', event);
-  game.header('White', gameInfo.game.white.name);
-  game.header('Black', gameInfo.game.black.name);
-  game.header('WhiteElo', gameInfo.game.whiteElo.toString());
-  if (gameInfo.game.whiteTitle) {
-    game.header('WhiteTitle', gameInfo.game.whiteTitle);
-  }
-  game.header('WhiteFideId', gameInfo.game.white.fideId.toString());
-  game.header('BlackElo', gameInfo.game.blackElo.toString());
-  if (gameInfo.game.blackTitle) {
-    game.header('BlackTitle', gameInfo.game.blackTitle)
-  };
-  game.header('BlackFideId', gameInfo.game.black.fideId.toString());
-  game.header('TimeControl', timeControl);
-  game.header('Round', roundSlug);
-  game.header('Result', gameInfo.game.result);
-  game.header('Board', gameInfo.game.board.toString());
   return {
     board: gameInfo.game.board,
     pgn: game.pgn(),
