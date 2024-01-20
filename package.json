@@ -1,7 +1,8 @@
 {
   "scripts": {
     "start": "nodemon --watch 'src/**/*.ts' --ignore 'src/**/*.spec.ts' --exec 'ts-node' src/server.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "format": "prettier --write ."
   },
   "devDependencies": {
     "@types/dotenv": "^8.2.0",
@@ -12,6 +13,7 @@
     "@types/request": "^2.48.3",
     "@types/validator": "^10.11.3",
     "nodemon": "^2",
+    "prettier": "3.2.4",
     "ts-node": "^10",
     "typescript": "^4"
   },
