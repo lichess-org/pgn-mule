@@ -66,7 +66,11 @@ import { Zulip } from './zulip';
     let games = splitGames(pgns.join('\n\n'));
     games = filterGames(games, ctx.query.round, ctx.query.slice);
     if (notEmpty(ctx.query.roundbase)) {
-      games = chess24Rounds(games, ctx.query.roundbase);
+      if (typeof ctx.query.roundbase === 'string') {
+        games = chess24Rounds(games, ctx.query.roundbase);
+      } else {
+        z.say('roundbase query parameter must be a string');
+      }
     }
     let pgn = await replace(games.join('\n\n'));
 
