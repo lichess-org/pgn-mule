@@ -52,17 +52,17 @@ interface Game {
 }
 async function getRound(tournamentId: string, round: number): Promise<Round> {
   return await fetchJson(
-    `https://1.pool.livechesscloud.com/get/${tournamentId}/round-${round}/index.json`
+    `https://1.pool.livechesscloud.com/get/${tournamentId}/round-${round}/index.json`,
   );
 }
 
 async function getGame(
   tournamentId: string,
   round: number,
-  game: number
+  game: number,
 ): Promise<Game> {
   return await fetchJson(
-    `https://1.pool.livechesscloud.com/get/${tournamentId}/round-${round}/game-${game}.json`
+    `https://1.pool.livechesscloud.com/get/${tournamentId}/round-${round}/game-${game}.json`,
   );
 }
 
@@ -81,7 +81,7 @@ export default async function fetchLcc(source: Source): Promise<string> {
   const round = parseInt(match[2]);
 
   const tournament: Tournament = await fetchJson(
-    `https://1.pool.livechesscloud.com/get/${tournamentId}/tournament.json`
+    `https://1.pool.livechesscloud.com/get/${tournamentId}/tournament.json`,
   );
   const roundInfo = await getRound(tournamentId, round);
   const games: Game[] = [];
@@ -113,7 +113,7 @@ export default async function fetchLcc(source: Source): Promise<string> {
       const [sat, timeStringInSecs] = move.split(' ');
       chess.move(sat);
       if (timeStringInSecs !== undefined && !timeStringInSecs.startsWith('+')) {
-        const time = dayjs.duration(parseInt(timeStringInSecs), "seconds")
+        const time = dayjs.duration(parseInt(timeStringInSecs), 'seconds');
         const hours = time.hours();
         const minutes = time.minutes();
         const seconds = time.seconds();

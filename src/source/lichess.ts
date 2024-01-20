@@ -22,7 +22,7 @@ export default async function fetchLichess(source: Source): Promise<string> {
         } else if (res.statusCode !== 404) {
           reject(`ERROR ${res.statusCode} err:${err}`);
         }
-      }
+      },
     );
   });
 }

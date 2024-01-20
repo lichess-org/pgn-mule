@@ -21,7 +21,7 @@ export class Redis {
   getSources = async () => {
     const keys = await this.client.keys('pgnmule:sources:*:info');
     console.log(`Got ${keys.length} sources: ${JSON.stringify(keys)}`);
-    return (await Promise.all(keys.map((k) => this.client.get(k))))
+    return (await Promise.all(keys.map(k => this.client.get(k))))
       .filter(notEmpty)
       .map(sourceFromJSON);
   };
@@ -54,12 +54,12 @@ export class Redis {
       pgns.push(time);
 
       const limit = time - source.delaySeconds * 1000;
-      const keepIndex = pgns.findIndex((d) => d >= limit) - 1; // keep one older entry
+      const keepIndex = pgns.findIndex(d => d >= limit) - 1; // keep one older entry
       const toRemove = keepIndex > 0 ? pgns.splice(0, keepIndex) : undefined;
       await this.setPgnList(source.name, pgns);
       if (toRemove)
         await this.client.del(
-          ...toRemove.map((t) => `pgnmule:pgns:${source.name}:${t}`)
+          ...toRemove.map(t => `pgnmule:pgns:${source.name}:${t}`),
         );
     }
   };
@@ -67,7 +67,7 @@ export class Redis {
   clearPgns = async (source: Source) => {
     const pgns = await this.getPgnList(source.name);
     if (pgns.length > 0) {
-      this.client.del(...pgns.map((t) => `pgnmule:pgns:${source.name}:${t}`));
+      this.client.del(...pgns.map(t => `pgnmule:pgns:${source.name}:${t}`));
     }
     await this.setPgnList(source.name, []);
   };
@@ -95,7 +95,7 @@ export class Redis {
     const keys = [
       `pgnmule:sources:${name}:info`,
       `pgnmule:sources:${name}:pgns`,
-      ...pgns.map((t) => `pgnmule:pgns:${name}:${t}`),
+      ...pgns.map(t => `pgnmule:pgns:${name}:${t}`),
     ];
     await this.client.del(...keys);
   };
@@ -131,5 +131,5 @@ const sourceFromJSON = (s: string): Source => {
 const stripMoves = (pgn: string) =>
   pgn
     .split('\n')
-    .filter((line) => line.trim() == '' || line[0] == '[')
+    .filter(line => line.trim() == '' || line[0] == '[')
     .join('\n');

@@ -80,7 +80,7 @@ async function getGamePgn(
   eventId: string,
   room: RoomInfo,
   roundSlug: string,
-  gameSlug: string
+  gameSlug: string,
 ): Promise<BoardWithPgn> {
   // XXX: We are trying to disguise ourselves as a browser here.
   const gameInfo: GameInfo = await fetchJson({
@@ -121,7 +121,7 @@ async function getGamePgn(
 
 export default async function fetchChessCom(source: Source): Promise<string> {
   const match = source.url.match(
-    /^chesscom:([0-9A-Za-z\-]+)\/([0-9A-Za-z\-]+)$/
+    /^chesscom:([0-9A-Za-z\-]+)\/([0-9A-Za-z\-]+)$/,
   );
   if (!match) throw `Invalid chesscom URL: ${source.url}`;
   // The URL is of form `chesscom:<event_id>/<round_slug>`
@@ -143,11 +143,11 @@ export default async function fetchChessCom(source: Source): Promise<string> {
   // Fetch all games asynchronously to speed things up.
   const pgns = await Promise.all(
     eventInfo.games
-      .filter((g) => g.roundId === round.id)
-      .map((game) => getGamePgn(eventId, eventInfo, roundSlug, game.slug))
+      .filter(g => g.roundId === round.id)
+      .map(game => getGamePgn(eventId, eventInfo, roundSlug, game.slug)),
   );
   return pgns
     .sort((a, b) => a.board - b.board)
-    .map((g) => g.pgn)
+    .map(g => g.pgn)
     .join('\n\n');
 }

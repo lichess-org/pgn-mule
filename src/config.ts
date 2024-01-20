@@ -10,14 +10,14 @@ export const publicIP = envOrDie('PUBLIC_IP');
 export const publicPort = parseInt(envOrDie('PUBLIC_PORT'));
 export const slowPollRate = parseFloat(envOrDie('SLOW_POLL_RATE_SECONDS'));
 export const minutesInactivitySlowDown = parseFloat(
-  envOrDie('MINUTES_INACTIVITY_SLOWDOWN')
+  envOrDie('MINUTES_INACTIVITY_SLOWDOWN'),
 );
 export const minutesInactivityDie = parseFloat(
-  envOrDie('MINUTES_INACTIVITY_DIE')
+  envOrDie('MINUTES_INACTIVITY_DIE'),
 );
 export const userAgent = envOr(
   'PGN_MULE_UA',
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36'
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36',
 );
 export const maxDelaySeconds = parseInt(envOrDie('DELAY_MAX_SECONDS'));
 
@@ -29,5 +29,5 @@ export const zulipTopic = envOrDie('ZULIP_TOPIC');
 
 export const lichessNoDelayKey = envOr(
   'LICHESS_NODELAY_KEY',
-  'lichessNoDelayKey'
+  'lichessNoDelayKey',
 );

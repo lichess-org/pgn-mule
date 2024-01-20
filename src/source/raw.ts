@@ -23,7 +23,7 @@ export default async function fetchRaw(source: Source): Promise<string> {
             resolve(new TextDecoder(encoding).decode(body));
           } catch (e) {
             console.log(
-              `[${source.name}]: failed to decode response. detected encoding:${encoding} err:${e}`
+              `[${source.name}]: failed to decode response. detected encoding:${encoding} err:${e}`,
             );
             resolve(body.toString());
           }
@@ -32,7 +32,7 @@ export default async function fetchRaw(source: Source): Promise<string> {
         } else if (res.statusCode !== 404) {
           reject(`ERROR ${res.statusCode} err:${err}`);
         }
-      }
+      },
     );
   });
 }
