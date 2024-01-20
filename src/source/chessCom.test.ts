@@ -1,12 +1,14 @@
 import { describe, expect, test } from '@jest/globals';
 import { analyseGamePgn, GameInfo } from './chessCom';
-import * as cc from '../../data/carlsen-cc.json';
-
+import fs from 'fs';
 
 describe('chesscom module', () => {
   test('carlsen game produce correct PGN', () => {
-    const gameInfo: GameInfo = cc as GameInfo;
-    expect(analyseGamePgn('WC', 'x+y', 'round-slug', gameInfo).pgn).toBe(`[Event "WC"]
+    const gameInfo: GameInfo = JSON.parse(
+      fs.readFileSync('./data/carlsen-cc.json', 'utf-8'),
+    );
+    expect(analyseGamePgn('WC', 'x+y', 'round-slug', gameInfo).pgn)
+      .toBe(`[Event "WC"]
 [White "Carlsen, Magnus"]
 [Black "Petrov, Nikita"]
 [WhiteElo "2818"]

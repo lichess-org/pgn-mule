@@ -2,8 +2,8 @@
   "scripts": {
     "start": "esrun src/server.ts",
     "build": "tsc",
-    "format": "prettier --write .",
-    "test": "jest"
+    "format": "prettier --log-level warn --write .",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
   "devDependencies": {
     "@jest/globals": "^29.7.0",
@@ -53,6 +53,9 @@
     },
     "extensionsToTreatAsEsm": [
       ".ts"
-    ]
+    ],
+    "moduleNameMapper": {
+      "^(\\.{1,2}/.*)\\.js$": "$1"
+    }
   }
 }
