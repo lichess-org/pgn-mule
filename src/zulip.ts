@@ -6,6 +6,9 @@ import {
   publicPort,
   publicScheme,
   version,
+  zulipUsername,
+  zulipApiKey,
+  zulipRealm,
   zulipStream,
   zulipTopic,
 } from './config';
@@ -31,9 +34,9 @@ export class Zulip {
   static async new(redis: Redis): Promise<Zulip> {
     return new Zulip(
       await zulip({
-        username: envOrDie('ZULIP_USERNAME'),
-        apiKey: envOrDie('ZULIP_API_KEY'),
-        realm: envOrDie('ZULIP_REALM'),
+        username: zulipUsername,
+        apiKey: zulipApiKey,
+        realm: zulipRealm,
       }),
       redis
     );

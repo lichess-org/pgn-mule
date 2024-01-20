@@ -20,8 +20,13 @@ export const userAgent = envOr(
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36'
 );
 export const maxDelaySeconds = parseInt(envOrDie('DELAY_MAX_SECONDS'));
+
+export const zulipUsername = envOrDie('ZULIP_USERNAME');
+export const zulipApiKey = envOrDie('ZULIP_API_KEY');
+export const zulipRealm = envOrDie('ZULIP_REALM');
 export const zulipStream = envOrDie('ZULIP_STREAM');
 export const zulipTopic = envOrDie('ZULIP_TOPIC');
+
 export const lichessNoDelayKey = envOr(
   'LICHESS_NODELAY_KEY',
   'lichessNoDelayKey'
