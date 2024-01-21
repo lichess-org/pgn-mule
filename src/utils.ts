@@ -1,5 +1,6 @@
 import { Chess } from 'chess.js';
 import request from 'request';
+import { Game, ChildNode } from 'chessops/pgn';
 import { promisify } from 'util';
 
 export interface Source {
@@ -10,6 +11,20 @@ export interface Source {
   dateLastPolled: Date;
   dateLastUpdated: Date;
 }
+
+// TODO: use from chessops once merged https://github.com/niklasf/chessops/pull/165
+export const extendMainline = <T>(game: Game<T>, data: T[]) => {
+  let node = game.moves;
+  while (node.children.length) {
+    const child = node.children[0];
+    node = child;
+  }
+  data.forEach(d => {
+    const newNode = new ChildNode(d);
+    node.children = [newNode];
+    node = newNode;
+  });
+};
 
 export function notEmpty<TValue>(
   value: TValue | null | undefined,

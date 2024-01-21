@@ -1,15 +1,15 @@
-import { Chess } from 'chess.js';
-import { makePgn, defaultGame, PgnNodeData, Game } from 'chessops/pgn';
+import {
+  makePgn,
+  defaultGame,
+  PgnNodeData,
+  Game,
+  Node,
+  ChildNode,
+} from 'chessops/pgn';
+import { parseUci } from 'chessops';
 import request from 'request';
 import { userAgent } from '../config';
-import { Source, fetchJson } from '../utils';
-
-// Add missing type for chess.js
-declare module 'chess.js' {
-  export interface ChessInstance {
-    set_comment(comment: string): void;
-  }
-}
+import { Source, fetchJson, extendMainline } from '../utils';
 
 const chessComHeaders = {
   'User-Agent': userAgent,
@@ -83,41 +83,43 @@ export function analyseGamePgn(
   roundSlug: string,
   gameInfo: GameInfo,
 ): BoardWithPgn {
-  const game = new Chess();
   const headers = new Map<string, string>();
-  headers['Event'] = event;
-  headers['White'] = gameInfo.game.white.name;
-  headers['Black'] = gameInfo.game.black.name;
-  headers['WhiteElo'] = gameInfo.game.whiteElo.toString();
+  headers.set('Event', event);
+  headers.set('White', gameInfo.game.white.name);
+  headers.set('Black', gameInfo.game.black.name);
+  headers.set('WhiteElo', gameInfo.game.whiteElo.toString());
   if (gameInfo.game.whiteTitle) {
-    headers['WhiteTitle'] = gameInfo.game.whiteTitle;
+    headers.set('WhiteTitle', gameInfo.game.whiteTitle);
   }
-  headers['WhiteFideId'] = gameInfo.game.white.fideId.toString();
-  headers['BlackElo'] = gameInfo.game.blackElo.toString();
+  headers.set('WhiteFideId', gameInfo.game.white.fideId.toString());
+  headers.set('BlackElo', gameInfo.game.blackElo.toString());
   if (gameInfo.game.blackTitle) {
-    headers['BlackTitle'] = gameInfo.game.blackTitle;
+    headers.set('BlackTitle', gameInfo.game.blackTitle);
   }
-  headers['BlackFideId'] = gameInfo.game.black.fideId.toString();
-  headers['TimeControl'] = timeControl;
-  headers['Round'] = roundSlug;
-  headers['Result'] = gameInfo.game.result;
-  headers['Board'] = gameInfo.game.board.toString();
-  const chessGame: Game<PgnNodeData> = defaultGame(() => headers);
-
-  for (const move of gameInfo.moves) {
+  headers.set('BlackFideId', gameInfo.game.black.fideId.toString());
+  headers.set('TimeControl', timeControl);
+  headers.set('Round', roundSlug);
+  headers.set('Result', gameInfo.game.result);
+  headers.set('Board', gameInfo.game.board.toString());
+  const chessGame: Game<PgnNodeData> = { headers: headers, moves: new Node() };
+  const mainline = gameInfo.moves.map(move => {
     // Chess.com mentions both long algebraic notation and algebraic notation.separated by a underscore '_'
     // We only need either one of it
     const [_, san] = move.cbn.split('_');
-    console.log(san);
-    game.move(san);
+    console.assert(
+      parseUci(san) === undefined,
+      `in game ${headers} SAN syntax error: ${san}`,
+    );
     const hours = Math.floor(move.clock / (3600 * 1000));
     const minutes = Math.floor((move.clock / (60 * 1000)) % 60);
     const seconds = Math.floor((move.clock / 1000) % 60);
-    game.set_comment(`[%clk ${hours}:${minutes}:${seconds}]`);
-  }
+    const comments = [`[%clk ${hours}:${minutes}:${seconds}]`];
+    return { comments, san };
+  });
+  extendMainline(chessGame, mainline);
   return {
     board: gameInfo.game.board,
-    pgn: game.pgn(),
+    pgn: makePgn(chessGame),
   };
 }
 
