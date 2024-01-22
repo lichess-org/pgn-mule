@@ -74,6 +74,44 @@ function getPlayerName(player: Player): string {
   return name;
 }
 
+function gameToPgn(
+  pairing: Pairing,
+  boardIndex: number,
+  tournament: Tournament,
+  round: number,
+  game: Game,
+): string {
+  const chess = new Chess();
+  chess.header('Event', tournament.name);
+  chess.header('White', getPlayerName(pairing.white));
+  chess.header('Black', getPlayerName(pairing.black));
+  if (pairing.white.title) {
+    chess.header('WhiteTitle', pairing.white.title);
+  }
+  if (pairing.black.title) {
+    chess.header('BlackTitle', pairing.black.title);
+  }
+  chess.header('Result', pairing.result);
+  // This field isn't necessarily in PGN format and can hold any random gibberish string as well
+  // In case this does not contain the correct data, we can replace it using addReplacement command
+  chess.header('TimeControl', tournament.timecontrol);
+  chess.header('Round', round.toString());
+  chess.header('Board', (boardIndex + 1).toString());
+  for (const move of game.moves) {
+    const [sat, timeStringInSecs] = move.split(' ');
+    chess.move(sat);
+    if (timeStringInSecs !== undefined && !timeStringInSecs.startsWith('+')) {
+      const time = dayjs.duration(parseInt(timeStringInSecs), 'seconds');
+      const hours = time.hours();
+      const minutes = time.minutes();
+      const seconds = time.seconds();
+      // @ts-ignore
+      chess.set_comment(`[%clk ${hours}:${minutes}:${seconds}]`);
+    }
+  }
+  return chess.pgn();
+}
+
 export default async function fetchLcc(source: Source): Promise<string> {
   const match = source.url.match(/^lcc:([0-9a-z\-]+)\/([0-9]+)$/);
   if (!match) throw `Invalid lcc URL: ${source.url}`;
@@ -93,34 +131,7 @@ export default async function fetchLcc(source: Source): Promise<string> {
   for (const [boardIndex, game] of games.entries()) {
     const pairing = roundInfo.pairings[boardIndex];
     if (!pairing.white || !pairing.black) continue;
-    const chess = new Chess();
-    chess.header('Event', tournament.name);
-    chess.header('White', getPlayerName(pairing.white));
-    chess.header('Black', getPlayerName(pairing.black));
-    if (pairing.white.title) {
-      chess.header('WhiteTitle', pairing.white.title);
-    }
-    if (pairing.black.title) {
-      chess.header('BlackTitle', pairing.black.title);
-    }
-    chess.header('Result', pairing.result);
-    // This field isn't necessarily in PGN format and can hold any random gibberish string as well
-    // In case this does not contain the correct data, we can replace it using addReplacement command
-    chess.header('TimeControl', tournament.timecontrol);
-    chess.header('Round', round.toString());
-    chess.header('Board', (boardIndex + 1).toString());
-    for (const move of game.moves) {
-      const [sat, timeStringInSecs] = move.split(' ');
-      chess.move(sat);
-      if (timeStringInSecs !== undefined && !timeStringInSecs.startsWith('+')) {
-        const time = dayjs.duration(parseInt(timeStringInSecs), 'seconds');
-        const hours = time.hours();
-        const minutes = time.minutes();
-        const seconds = time.seconds();
-        chess.set_comment(`[%clk ${hours}:${minutes}:${seconds}]`);
-      }
-    }
-    pgn += chess.pgn() + '\n\n';
+    pgn += gameToPgn(pairing, boardIndex, tournament, round, game) + '\n\n';
   }
   return pgn;
 }
