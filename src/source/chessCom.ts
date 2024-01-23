@@ -1,11 +1,4 @@
-import {
-  makePgn,
-  defaultGame,
-  PgnNodeData,
-  Game,
-  Node,
-  ChildNode,
-} from 'chessops/pgn';
+import { makePgn, PgnNodeData, Game, Node } from 'chessops/pgn';
 import { parseUci } from 'chessops';
 import request from 'request';
 import { userAgent } from '../config';
