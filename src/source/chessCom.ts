@@ -1,8 +1,8 @@
-import { makePgn, PgnNodeData, Game, Node } from 'chessops/pgn';
+import { makePgn, PgnNodeData, Game, Node } from 'chessops/pgn.js';
 import { parseUci } from 'chessops';
 import request from 'request';
-import { userAgent } from '../config';
-import { Source, fetchJson, extendMainline } from '../utils';
+import { userAgent } from '../config.js';
+import { Source, fetchJson, extendMainline } from '../utils.js';
 
 const chessComHeaders = {
   'User-Agent': userAgent,

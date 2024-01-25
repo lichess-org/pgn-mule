@@ -1,5 +1,5 @@
 import { config as configDotEnv } from 'dotenv';
-import { envOr, envOrDie } from './utils';
+import { envOr, envOrDie } from './utils.js';
 
 configDotEnv();
 

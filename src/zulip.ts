@@ -1,4 +1,4 @@
-import isURL from 'validator/lib/isURL';
+import isURL from 'validator/lib/isURL.js';
 import zulip from 'zulip-js';
 import {
   maxDelaySeconds,
@@ -11,9 +11,9 @@ import {
   zulipRealm,
   zulipStream,
   zulipTopic,
-} from './config';
-import { pollURL } from './poll';
-import { Redis } from './redis';
+} from './config.js';
+import { pollURL } from './poll.js';
+import { Redis } from './redis.js';
 import {
   envOrDie,
   markdownPre,
@@ -22,7 +22,7 @@ import {
   Replacement,
   sleep,
   Source,
-} from './utils';
+} from './utils.js';
 
 interface Handler {
   (params: { args: string[]; text: string; msgId: number }): Promise<unknown>;

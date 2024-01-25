@@ -1,5 +1,5 @@
 import { describe, expect, test } from '@jest/globals';
-import { analyseGamePgn, GameInfo } from './chessCom';
+import { analyseGamePgn, GameInfo } from './chessCom.js';
 import fs from 'fs';
 
 describe('chesscom module', () => {

@@ -3,15 +3,15 @@ import {
   minutesInactivityDie,
   minutesInactivitySlowDown,
   slowPollRate,
-} from './config';
-import { Redis } from './redis';
-import { notEmpty, Source } from './utils';
-import { Zulip } from './zulip';
+} from './config.js';
+import { Redis } from './redis.js';
+import { notEmpty, Source } from './utils.js';
+import { Zulip } from './zulip.js';
 
-import fetchChessCom from './source/chessCom';
-import fetchLichess from './source/lichess';
-import fetchLcc from './source/lcc';
-import fetchRaw from './source/raw';
+import fetchChessCom from './source/chessCom.js';
+import fetchLichess from './source/lichess.js';
+import fetchLcc from './source/lcc.js';
+import fetchRaw from './source/raw.js';
 
 const timeouts: Record<string, ReturnType<typeof setTimeout> | undefined> = {};
 
