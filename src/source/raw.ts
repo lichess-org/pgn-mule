@@ -1,8 +1,8 @@
 import chardet from 'chardet';
 import request from 'request';
-import { userAgent, cookie } from '../config';
+import { userAgent, cookie } from '../config.js';
 import { TextDecoder } from 'util';
-import { Source } from '../utils';
+import { Source } from '../utils.js';
 
 export default async function fetchRaw(source: Source): Promise<string> {
   return new Promise((resolve, reject) => {

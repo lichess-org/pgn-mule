@@ -1,5 +1,5 @@
 import { describe, expect, test } from '@jest/globals';
-import { Pairing, Game, Tournament, gameToPgn } from './lcc';
+import { Pairing, Game, Tournament, gameToPgn } from './lcc.js';
 import fs from 'fs';
 
 describe('lcc module', () => {

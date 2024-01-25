@@ -1,5 +1,5 @@
 import { createHandyClient } from 'handy-redis';
-import { envOr, notEmpty, Replacements, Source } from './utils';
+import { envOr, notEmpty, Replacements, Source } from './utils.js';
 
 export class Redis {
   client = createHandyClient({

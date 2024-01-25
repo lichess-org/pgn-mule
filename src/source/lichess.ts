@@ -1,7 +1,7 @@
 import request from 'request';
-import { lichessNoDelayKey } from '../config';
-import { Source } from '../utils';
-import fetchRaw from './raw';
+import { lichessNoDelayKey } from '../config.js';
+import { Source } from '../utils.js';
+import fetchRaw from './raw.js';
 
 export default async function fetchLichess(source: Source): Promise<string> {
   const match = source.url.match(/^lichess:(\w{8}(?:,\w{8})*)$/);

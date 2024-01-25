@@ -1,8 +1,8 @@
 import Router from '@koa/router';
 import Koa from 'koa';
-import { publicIP, publicPort } from './config';
-import { pollURL } from './poll';
-import { Redis } from './redis';
+import { publicIP, publicPort } from './config.js';
+import { pollURL } from './poll.js';
+import { Redis } from './redis.js';
 import {
   chess24Rounds,
   filterGames,
@@ -10,8 +10,8 @@ import {
   regexEscape,
   splitGames,
   toShredder,
-} from './utils';
-import { Zulip } from './zulip';
+} from './utils.js';
+import { Zulip } from './zulip.js';
 
 (async () => {
   const redis = new Redis();

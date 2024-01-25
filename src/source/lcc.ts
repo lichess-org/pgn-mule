@@ -1,7 +1,7 @@
-import { makePgn, PgnNodeData, Game as ChessGame, Node } from 'chessops/pgn';
-import { Source, fetchJson, extendMainline } from '../utils';
+import { makePgn, PgnNodeData, Game as ChessGame, Node } from 'chessops/pgn.js';
+import { Source, fetchJson, extendMainline } from '../utils.js';
 import dayjs from 'dayjs';
-import duration from 'dayjs/plugin/duration';
+import duration from 'dayjs/plugin/duration.js';
 dayjs.extend(duration);
 
 // NOTE: these types don't contain all the fields, just the ones we care about.
