@@ -1,6 +1,5 @@
-import { Chess } from 'chess.js';
 import request from 'request';
-import { Game, ChildNode } from 'chessops/pgn';
+import { Game, ChildNode, parsePgn, makePgn } from 'chessops/pgn';
 import { promisify } from 'util';
 
 export interface Source {
@@ -93,11 +92,12 @@ export function splitGames(multiPgn: string): string[] {
 
 // chess 24 round numbers.
 export function chess24Rounds(pgns: string[], roundbase: string): string[] {
-  const chess = new Chess();
   return pgns.map((pgn, i) => {
-    if (chess.load_pgn(pgn)) {
-      chess.header('Round', roundbase.replace('{}', (i + 1).toString()));
-      return chess.pgn();
+    const games = parsePgn(pgn);
+    if (games.length) {
+      const game = games[0];
+      game.headers.set('Round', roundbase.replace('{}', (i + 1).toString()));
+      return makePgn(game);
     } else return pgn;
   });
 }
