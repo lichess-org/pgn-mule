@@ -1,14 +1,8 @@
-import { Chess } from 'chess.js';
+import { makePgn, PgnNodeData, Game, Node } from 'chessops/pgn';
+import { parseUci } from 'chessops';
 import request from 'request';
 import { userAgent } from '../config';
-import { Source, fetchJson } from '../utils';
-
-// Add missing type for chess.js
-declare module 'chess.js' {
-  export interface ChessInstance {
-    set_comment(comment: string): void;
-  }
-}
+import { Source, fetchJson, extendMainline } from '../utils';
 
 const chessComHeaders = {
   'User-Agent': userAgent,
@@ -39,13 +33,13 @@ interface Player {
   title: string;
   fideId: number;
 }
-interface Game {
+interface GameRes {
   roundId: number;
   slug: string;
   blackElo: number;
   whiteElo: number;
-  blackTitle: string;
-  whiteTitle: string;
+  blackTitle?: string;
+  whiteTitle?: string;
   white: Player;
   black: Player;
   result: string;
@@ -62,11 +56,11 @@ interface RoomInfo {
   room: Room;
   name: string;
   rounds: Round[];
-  games: Game[];
+  games: GameRes[];
 }
 // https://nxt.chessbomb.com/events/api/game/<event_id>/<round_slug>/<round_slug>/<game_slug>
-interface GameInfo {
-  game: Game;
+export interface GameInfo {
+  game: GameRes;
   room: Room;
   moves: Move[];
 }
@@ -76,11 +70,57 @@ interface BoardWithPgn {
   pgn: string;
 }
 
+export function analyseGamePgn(
+  event: string,
+  timeControl: string,
+  roundSlug: string,
+  gameInfo: GameInfo,
+): BoardWithPgn {
+  const headers = new Map<string, string>();
+  headers.set('Event', event);
+  headers.set('White', gameInfo.game.white.name);
+  headers.set('Black', gameInfo.game.black.name);
+  headers.set('WhiteElo', gameInfo.game.whiteElo.toString());
+  if (gameInfo.game.whiteTitle) {
+    headers.set('WhiteTitle', gameInfo.game.whiteTitle);
+  }
+  headers.set('WhiteFideId', gameInfo.game.white.fideId.toString());
+  headers.set('BlackElo', gameInfo.game.blackElo.toString());
+  if (gameInfo.game.blackTitle) {
+    headers.set('BlackTitle', gameInfo.game.blackTitle);
+  }
+  headers.set('BlackFideId', gameInfo.game.black.fideId.toString());
+  headers.set('TimeControl', timeControl);
+  headers.set('Round', roundSlug);
+  headers.set('Result', gameInfo.game.result);
+  headers.set('Board', gameInfo.game.board.toString());
+  const chessGame: Game<PgnNodeData> = { headers: headers, moves: new Node() };
+  const mainline = gameInfo.moves.map(move => {
+    // Chess.com mentions both long algebraic notation and algebraic notation.separated by a underscore '_'
+    // We only need either one of it
+    const [_, san] = move.cbn.split('_');
+    console.assert(
+      parseUci(san) === undefined,
+      `in game ${headers} SAN syntax error: ${san}`,
+    );
+    const hours = Math.floor(move.clock / (3600 * 1000));
+    const minutes = Math.floor((move.clock / (60 * 1000)) % 60);
+    const seconds = Math.floor((move.clock / 1000) % 60);
+    const comments = [`[%clk ${hours}:${minutes}:${seconds}]`];
+    return { comments, san };
+  });
+  extendMainline(chessGame, mainline);
+  return {
+    board: gameInfo.game.board,
+    pgn: makePgn(chessGame),
+  };
+}
+
 async function getGamePgn(
   eventId: string,
   room: RoomInfo,
   roundSlug: string,
-  gameSlug: string
+  gameSlug: string,
 ): Promise<BoardWithPgn> {
   // XXX: We are trying to disguise ourselves as a browser here.
   const gameInfo: GameInfo = await fetchJson({
@@ -89,39 +129,12 @@ async function getGamePgn(
     headers: chessComHeaders,
     gzip: true,
   });
-  const game = new Chess();
-  for (const move of gameInfo.moves) {
-    // Chess.com mentions both long algebraic notation and algebraic notation.separated by a underscore '_'
-    // We only need either one of it
-    const [_, san] = move.cbn.split('_');
-    game.move(san);
-    const hours = Math.floor(move.clock / (3600 * 1000));
-    const minutes = Math.floor((move.clock / (60 * 1000)) % 60);
-    const seconds = Math.floor((move.clock / 1000) % 60);
-    game.set_comment(`[%clk ${hours}:${minutes}:${seconds}]`);
-  }
-  game.header('Event', room.name);
-  game.header('White', gameInfo.game.white.name);
-  game.header('Black', gameInfo.game.black.name);
-  game.header('WhiteElo', gameInfo.game.whiteElo.toString());
-  game.header('WhiteTitle', gameInfo.game.whiteTitle);
-  game.header('WhiteFideId', gameInfo.game.white.fideId.toString());
-  game.header('BlackElo', gameInfo.game.blackElo.toString());
-  game.header('BlackTitle', gameInfo.game.blackTitle);
-  game.header('BlackFideId', gameInfo.game.black.fideId.toString());
-  game.header('TimeControl', room.room.timeControl);
-  game.header('Round', roundSlug);
-  game.header('Result', gameInfo.game.result);
-  game.header('Board', gameInfo.game.board.toString());
-  return {
-    board: gameInfo.game.board,
-    pgn: game.pgn(),
-  };
+  return analyseGamePgn(room.name, room.room.timeControl, roundSlug, gameInfo);
 }
 
 export default async function fetchChessCom(source: Source): Promise<string> {
   const match = source.url.match(
-    /^chesscom:([0-9A-Za-z\-]+)\/([0-9A-Za-z\-]+)$/
+    /^chesscom:([0-9A-Za-z\-]+)\/([0-9A-Za-z\-]+)$/,
   );
   if (!match) throw `Invalid chesscom URL: ${source.url}`;
   // The URL is of form `chesscom:<event_id>/<round_slug>`
@@ -143,11 +156,11 @@ export default async function fetchChessCom(source: Source): Promise<string> {
   // Fetch all games asynchronously to speed things up.
   const pgns = await Promise.all(
     eventInfo.games
-      .filter((g) => g.roundId === round.id)
-      .map((game) => getGamePgn(eventId, eventInfo, roundSlug, game.slug))
+      .filter(g => g.roundId === round.id)
+      .map(game => getGamePgn(eventId, eventInfo, roundSlug, game.slug)),
   );
   return pgns
     .sort((a, b) => a.board - b.board)
-    .map((g) => g.pgn)
+    .map(g => g.pgn)
     .join('\n\n');
 }

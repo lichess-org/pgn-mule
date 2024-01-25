@@ -18,7 +18,7 @@ import { Zulip } from './zulip';
   const z = await Zulip.new(redis);
 
   const startSources = async () => {
-    (await redis.getSources()).forEach((s) => {
+    (await redis.getSources()).forEach(s => {
       console.log(`Starting ${s.name}`);
       pollURL(s.name, redis, z);
     });
@@ -30,9 +30,9 @@ import { Zulip } from './zulip';
       (current, r) =>
         current.replace(
           new RegExp(r.regex ? r.oldContent : regexEscape(r.oldContent), 'g'),
-          r.newContent
+          r.newContent,
         ),
-      pgn
+      pgn,
     );
   };
 
@@ -50,23 +50,27 @@ import { Zulip } from './zulip';
   router.get('/:names+', async (ctx, _) => {
     const names = ctx.params.names.split('/') as string[];
     const sources = (
-      await Promise.all(names.map((n) => redis.getSource(n as string)))
+      await Promise.all(names.map(n => redis.getSource(n as string)))
     ).filter(notEmpty);
     await Promise.all(
-      sources.map((s) => {
+      sources.map(s => {
         const commit =
           s.dateLastPolled.getTime() < new Date().getTime() - 60_000;
         s.dateLastPolled = new Date();
         return commit ? redis.setSource(s) : Promise.resolve();
-      })
+      }),
     );
     const pgns = (
-      await Promise.all(sources.map((s) => redis.getPgnWithDelay(s)))
+      await Promise.all(sources.map(s => redis.getPgnWithDelay(s)))
     ).filter(notEmpty);
     let games = splitGames(pgns.join('\n\n'));
     games = filterGames(games, ctx.query.round, ctx.query.slice);
     if (notEmpty(ctx.query.roundbase)) {
-      games = chess24Rounds(games, ctx.query.roundbase);
+      if (typeof ctx.query.roundbase === 'string') {
+        games = chess24Rounds(games, ctx.query.roundbase);
+      } else {
+        z.say('roundbase query parameter must be a string');
+      }
     }
     let pgn = await replace(games.join('\n\n'));
 

@@ -1,5 +1,5 @@
-import { Chess } from 'chess.js';
-import { Source, fetchJson } from '../utils';
+import { makePgn, PgnNodeData, Game as ChessGame, Node } from 'chessops/pgn';
+import { Source, fetchJson, extendMainline } from '../utils';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 dayjs.extend(duration);
@@ -7,7 +7,7 @@ dayjs.extend(duration);
 // NOTE: these types don't contain all the fields, just the ones we care about.
 
 // https://1.pool.livechesscloud.com/get/<tournament_id>/tournament.json
-interface Tournament {
+export interface Tournament {
   name: string;
   timecontrol: string;
   // TODO: what rules are there?
@@ -25,11 +25,11 @@ interface Player {
   mname: string | null;
   lname: string | null;
   title: string | null;
-  // TODO: what does this contain when fideid is not null?
-  fideid: null;
+  // the FIDE ID, if filled by the organiser. check on ratings.fide.com
+  fideid?: number;
 }
 
-interface Pairing {
+export interface Pairing {
   white: Player;
   black: Player;
   result: string;
@@ -37,14 +37,14 @@ interface Pairing {
 }
 
 // https://1.pool.livechesscloud.com/get/<tournament_id>/round-<round_number>/index.json
-interface Round {
+export interface Round {
   // TODO: what does this contain when date is there?
   date: null;
   pairings: Array<Pairing>;
 }
 
 // https://1.pool.livechesscloud.com/get/<tournament_id>/round-<round_no>/game-<game_no>.json
-interface Game {
+export interface Game {
   // Looks like https://en.wikipedia.org/wiki/Fischer_random_chess_numbering_scheme
   // although it's also provided for standard games, only needed for chess960.
   chess960: number;
@@ -52,17 +52,17 @@ interface Game {
 }
 async function getRound(tournamentId: string, round: number): Promise<Round> {
   return await fetchJson(
-    `https://1.pool.livechesscloud.com/get/${tournamentId}/round-${round}/index.json`
+    `https://1.pool.livechesscloud.com/get/${tournamentId}/round-${round}/index.json`,
   );
 }
 
 async function getGame(
   tournamentId: string,
   round: number,
-  game: number
+  game: number,
 ): Promise<Game> {
   return await fetchJson(
-    `https://1.pool.livechesscloud.com/get/${tournamentId}/round-${round}/game-${game}.json`
+    `https://1.pool.livechesscloud.com/get/${tournamentId}/round-${round}/game-${game}.json`,
   );
 }
 
@@ -74,6 +74,50 @@ function getPlayerName(player: Player): string {
   return name;
 }
 
+export function gameToPgn(
+  pairing: Pairing,
+  boardIndex: number,
+  tournament: Tournament,
+  round: number,
+  game: Game,
+): string {
+  const headers = new Map<string, string>();
+  headers.set('Event', tournament.name);
+  headers.set('White', getPlayerName(pairing.white));
+  headers.set('Black', getPlayerName(pairing.black));
+
+  if (pairing.white.title) {
+    headers.set('WhiteTitle', pairing.white.title);
+  }
+  if (pairing.black.title) {
+    headers.set('BlackTitle', pairing.black.title);
+  }
+  headers.set('Result', pairing.result);
+  // This field isn't necessarily in PGN format and can hold any random gibberish string as well
+  // In case this does not contain the correct data, we can replace it using addReplacement command
+  headers.set('TimeControl', tournament.timecontrol);
+  headers.set('Round', round.toString());
+  headers.set('Board', (boardIndex + 1).toString());
+  const mainline = game.moves.map(move => {
+    const [san, timeStringInSecs] = move.split(' ');
+    let comments: string[] = [];
+    if (timeStringInSecs !== undefined && !timeStringInSecs.startsWith('+')) {
+      const time = dayjs.duration(parseInt(timeStringInSecs), 'seconds');
+      const hours = time.hours();
+      const minutes = time.minutes();
+      const seconds = time.seconds();
+      comments.push(`[%clk ${hours}:${minutes}:${seconds}]`);
+    }
+    return { comments, san };
+  });
+  const chessGame: ChessGame<PgnNodeData> = {
+    headers: headers,
+    moves: new Node(),
+  };
+  extendMainline(chessGame, mainline);
+  return makePgn(chessGame);
+}
+
 export default async function fetchLcc(source: Source): Promise<string> {
   const match = source.url.match(/^lcc:([0-9a-z\-]+)\/([0-9]+)$/);
   if (!match) throw `Invalid lcc URL: ${source.url}`;
@@ -81,7 +125,7 @@ export default async function fetchLcc(source: Source): Promise<string> {
   const round = parseInt(match[2]);
 
   const tournament: Tournament = await fetchJson(
-    `https://1.pool.livechesscloud.com/get/${tournamentId}/tournament.json`
+    `https://1.pool.livechesscloud.com/get/${tournamentId}/tournament.json`,
   );
   const roundInfo = await getRound(tournamentId, round);
   const games: Game[] = [];
@@ -93,34 +137,7 @@ export default async function fetchLcc(source: Source): Promise<string> {
   for (const [boardIndex, game] of games.entries()) {
     const pairing = roundInfo.pairings[boardIndex];
     if (!pairing.white || !pairing.black) continue;
-    const chess = new Chess();
-    chess.header('Event', tournament.name);
-    chess.header('White', getPlayerName(pairing.white));
-    chess.header('Black', getPlayerName(pairing.black));
-    if (pairing.white.title) {
-      chess.header('WhiteTitle', pairing.white.title);
-    }
-    if (pairing.black.title) {
-      chess.header('BlackTitle', pairing.black.title);
-    }
-    chess.header('Result', pairing.result);
-    // This field isn't necessarily in PGN format and can hold any random gibberish string as well
-    // In case this does not contain the correct data, we can replace it using addReplacement command
-    chess.header('TimeControl', tournament.timecontrol);
-    chess.header('Round', round.toString());
-    chess.header('Board', (boardIndex + 1).toString());
-    for (const move of game.moves) {
-      const [sat, timeStringInSecs] = move.split(' ');
-      chess.move(sat);
-      if (timeStringInSecs !== undefined && !timeStringInSecs.startsWith('+')) {
-        const time = dayjs.duration(parseInt(timeStringInSecs), "seconds")
-        const hours = time.hours();
-        const minutes = time.minutes();
-        const seconds = time.seconds();
-        chess.set_comment(`[%clk ${hours}:${minutes}:${seconds}]`);
-      }
-    }
-    pgn += chess.pgn() + '\n\n';
+    pgn += gameToPgn(pairing, boardIndex, tournament, round, game) + '\n\n';
   }
   return pgn;
 }

@@ -6,6 +6,9 @@ import {
   publicPort,
   publicScheme,
   version,
+  zulipUsername,
+  zulipApiKey,
+  zulipRealm,
   zulipStream,
   zulipTopic,
 } from './config';
@@ -26,16 +29,19 @@ interface Handler {
 }
 
 export class Zulip {
-  constructor(private z: any, private redis: Redis) {}
+  constructor(
+    private z: any,
+    private redis: Redis,
+  ) {}
 
   static async new(redis: Redis): Promise<Zulip> {
     return new Zulip(
       await zulip({
-        username: envOrDie('ZULIP_USERNAME'),
-        apiKey: envOrDie('ZULIP_API_KEY'),
-        realm: envOrDie('ZULIP_REALM'),
+        username: zulipUsername,
+        apiKey: zulipApiKey,
+        realm: zulipRealm,
       }),
-      redis
+      redis,
     );
   }
 
@@ -71,7 +77,7 @@ export class Zulip {
       const command = parts[0].toLowerCase();
       parts.shift(); // Remove initial command
       for (const [cmds, handler] of this.commands) {
-        if (cmds.some((c) => c === command)) {
+        if (cmds.some(c => c === command)) {
           console.log(`Processing ${command} command`);
           await handler({
             args: parts,
@@ -149,7 +155,7 @@ export class Zulip {
       for (const id of ids) {
         if (!id.match(/^\w{8}$/)) {
           this.say(
-            `Invalid game ID: ${id}. Must have exactly 8 letters or numbers`
+            `Invalid game ID: ${id}. Must have exactly 8 letters or numbers`,
           );
           return;
         }
@@ -157,14 +163,14 @@ export class Zulip {
     } else if (url.startsWith('chesscom:')) {
       if (!url.match(/^chesscom:([0-9A-Za-z\-]+)\/([0-9A-Za-z\-]+)$/)) {
         this.say(
-          "Invalid chesscom source. Must be of the form 'chesscom:eventId/roundId'"
+          "Invalid chesscom source. Must be of the form 'chesscom:eventId/roundId'",
         );
         return;
       }
     } else if (url.startsWith('lcc:')) {
       if (!url.match(/^lcc:([0-9a-z\-]+)\/([0-9]+)$/)) {
         this.say(
-          "Invalid lcc source. Must be of the form 'lcc:tournamentId/round'"
+          "Invalid lcc source. Must be of the form 'lcc:tournamentId/round'",
         );
         return;
       }
@@ -196,10 +202,10 @@ export class Zulip {
     const vars = args.shift();
     if (vars === undefined) return;
     const sources = await Promise.all(
-      vars.split(',').map(async (x) => {
-        const newArgs = args.map((p) => p.replace(/\{\}/, x));
+      vars.split(',').map(async x => {
+        const newArgs = args.map(p => p.replace(/\{\}/, x));
         return await this.addOrSet({ args: newArgs });
-      })
+      }),
     );
     await this.react('check_mark', msgId);
     await this.say(formatManySources(sources.filter(notEmpty)));
@@ -218,21 +224,21 @@ export class Zulip {
       await this.say(
         markdownTable([
           ['Name', 'Destination', 'Freq', 'Delay', 'Source'],
-          ...sources.map((s) => [
+          ...sources.map(s => [
             s.name,
             `${publicScheme}://${publicIP}:${publicPort}/${s.name}`,
             `1/${s.updateFreqSeconds}s`,
             `${s.delaySeconds}s`,
             s.url,
           ]),
-        ])
+        ]),
       );
   };
 
   clearAllSources = async ({ msgId }: { msgId: number }) => {
     console.log(`Clearing all sources`);
     const sources = await this.redis.getSources();
-    sources.forEach(async (s) => {
+    sources.forEach(async s => {
       console.log(`Clearing source: ${s.name}`);
       await this.redis.removeSource(s.name);
     });
@@ -243,11 +249,11 @@ export class Zulip {
   addReplacement = async ({ text, msgId }: { text: string; msgId: number }) => {
     const regex = text.startsWith('r`');
     if (regex) text = text.substring(1);
-    const [oldContent, newContent] = text.split('->').map((s) =>
+    const [oldContent, newContent] = text.split('->').map(s =>
       s
         .trim()
         .replace(/^`+|`+$/g, '')
-        .replace(/\\n/g, '\n')
+        .replace(/\\n/g, '\n'),
     );
     if (!oldContent || !newContent) {
       this.say('Invalid replacement. Format: from->to');
@@ -272,10 +278,10 @@ export class Zulip {
     const replacements = text
       .replace(/^`+|`+$/g, '')
       .split('\n')
-      .map((x) => x.trim())
-      .filter((x) => x.length > 0)
-      .map((x) => {
-        const [oldContent, newContent] = x.split('\t').map((x) => x.trim());
+      .map(x => x.trim())
+      .filter(x => x.length > 0)
+      .map(x => {
+        const [oldContent, newContent] = x.split('\t').map(x => x.trim());
         return { oldContent, newContent };
       });
     await this.redis.setReplacements([
@@ -300,7 +306,7 @@ export class Zulip {
               markdownPre(r.newContent.replace(/\n/g, '\\n')),
               r.regex ? 'regex' : '',
             ]),
-        ])
+        ]),
       );
     }
   };
@@ -318,9 +324,9 @@ export class Zulip {
     const start = parseInt(parts[0]);
     const end = parseInt(parts[parts.length - 1]);
     await this.redis.setReplacements(
-      (
-        await this.redis.getReplacements()
-      ).filter((_, i) => i < start || i > end)
+      (await this.redis.getReplacements()).filter(
+        (_, i) => i < start || i > end,
+      ),
     );
     await this.react('check_mark', msgId);
   };
@@ -369,6 +375,4 @@ const formatSource = (s: Source) =>
   ].join('\n');
 
 const formatManySources = (sources: Source[]) =>
-  `all of them -> ${publicScheme}://${publicIP}:${publicPort}/${sources
-    .map((s) => s.name)
-    .join('/')}`;
+  `all of them -> ${publicScheme}://${publicIP}:${publicPort}/${sources.map(s => s.name).join('/')}`;

@@ -47,7 +47,7 @@ export const pollURL = async (name: string, redis: Redis, zulip: Zulip) => {
 
   const secondsSinceUpdated = differenceInSeconds(
     new Date(),
-    source.dateLastUpdated
+    source.dateLastUpdated,
   );
   source.dateLastUpdated = new Date();
   await redis.setSource(source);
@@ -56,7 +56,7 @@ export const pollURL = async (name: string, redis: Redis, zulip: Zulip) => {
     await redis.addPgn(source, data);
     const allGames = data.split('[Event').filter((g: string) => !!g);
     console.log(
-      `[${name}]: Got ${allGames.length} games (${data.length} bytes)`
+      `[${name}]: Got ${allGames.length} games (${data.length} bytes)`,
     );
   }
 
@@ -72,39 +72,37 @@ export const pollURL = async (name: string, redis: Redis, zulip: Zulip) => {
   if (minutes >= minutesInactivitySlowDown) {
     updateFreqMillis = Math.max(
       source.updateFreqSeconds * 4 * 1000,
-      slowPollRate * 1000
+      slowPollRate * 1000,
     );
     console.log(`New update freq: ${Math.round(updateFreqMillis / 1000)}s`);
     console.log(
       `Checking whether we just slowed down or not: ${secondsSinceUpdated} < ${slowPollRate} = ${
         secondsSinceUpdated < slowPollRate
-      }`
+      }`,
     );
     console.log(
       `secondsSinceUpdate - source.updateFreqSeconds = ${Math.abs(
-        secondsSinceUpdated - source.updateFreqSeconds / 1000.0
-      )} | secondsSinceUpdate - slowPollRate = ${Math.abs(
-        secondsSinceUpdated - slowPollRate
-      )}
+        secondsSinceUpdated - source.updateFreqSeconds / 1000.0,
+      )} | secondsSinceUpdate - slowPollRate = ${Math.abs(secondsSinceUpdated - slowPollRate)}
             Are we closer to the slow poll rate? ${
               Math.abs(
-                secondsSinceUpdated - source.updateFreqSeconds / 1000.0
+                secondsSinceUpdated - source.updateFreqSeconds / 1000.0,
               ) < Math.abs(secondsSinceUpdated - slowPollRate)
             }
-          `
+          `,
     );
     if (
       Math.abs(secondsSinceUpdated - source.updateFreqSeconds / 1000.0) <
       Math.abs(secondsSinceUpdated - slowPollRate)
     ) {
       zulip.sayOnce(
-        `${name} Slowing refresh to ${updateFreqMillis / 1000} seconds`
+        `${name} Slowing refresh to ${updateFreqMillis / 1000} seconds`,
       );
     }
   }
 
   timeouts[name] = setTimeout(
     () => pollURL(name, redis, zulip),
-    updateFreqMillis
+    updateFreqMillis,
   );
 };

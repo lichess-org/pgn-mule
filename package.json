@@ -1,9 +1,12 @@
 {
   "scripts": {
-    "start": "nodemon --watch 'src/**/*.ts' --ignore 'src/**/*.spec.ts' --exec 'ts-node' src/server.ts",
-    "build": "tsc"
+    "start": "esrun src/server.ts",
+    "build": "tsc",
+    "format": "prettier --log-level warn --write .",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
   "devDependencies": {
+    "@jest/globals": "^29.7.0",
     "@types/dotenv": "^8.2.0",
     "@types/koa": "^2.0.52",
     "@types/koa-bodyparser": "^4.3.0",
@@ -11,16 +14,19 @@
     "@types/redis": "^2.8.14",
     "@types/request": "^2.48.3",
     "@types/validator": "^10.11.3",
-    "nodemon": "^2",
-    "ts-node": "^10",
+    "esrun": "^3.2.26",
+    "jest": "^29.7.0",
+    "prettier": "3.2.4",
+    "ts-jest": "^29.1.1",
     "typescript": "^4"
   },
+  "type": "module",
   "dependencies": {
     "@koa/router": "^8.0.2",
     "@types/chess.js": "^0.10.1",
     "@types/koa__router": "^8.0.1",
     "chardet": "^1.5.0",
-    "chess.js": "^0.11.0",
+    "chessops": "^0.13.0",
     "date-fns": "^2.7.0",
     "dayjs": "^1.11.9",
     "dotenv": "^8.2.0",
@@ -33,5 +39,22 @@
     "typeorm": "^0.2.20",
     "validator": "^12.0.0",
     "zulip-js": "^2.0.9"
+  },
+  "jest": {
+    "testRegex": ".*\\.test\\.ts$",
+    "transform": {
+      "\\.ts$": [
+        "ts-jest",
+        {
+          "useESM": true
+        }
+      ]
+    },
+    "extensionsToTreatAsEsm": [
+      ".ts"
+    ],
+    "moduleNameMapper": {
+      "^(\\.{1,2}/.*)\\.js$": "$1"
+    }
   }
 }

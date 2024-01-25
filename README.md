@@ -3,9 +3,14 @@ Merge, filter, tweak and expose PGN sources.
 ## Usage
 
 ```
+# start redis
+docker run -p 6379:6379 redis:latest
+```
+
+```
 # edit .env
-yarn install
-yarn start
+pnpm install
+pnpm start
 ```
 
 In zulip
@@ -77,5 +82,5 @@ replaced with 1.1, 1.2, 1.3 ...
 ## Deploy
 
 ```sh
-yarn build; rsync -av build node_modules root@radio.lichess.ovh:/home/zulip-pgn-mule/; ssh root@radio.lichess.ovh "systemctl restart zulip-pgn-mule"
+pnpm build; rsync -av build node_modules root@radio.lichess.ovh:/home/zulip-pgn-mule/; ssh root@radio.lichess.ovh "systemctl restart zulip-pgn-mule"
 ```

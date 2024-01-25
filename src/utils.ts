@@ -1,5 +1,5 @@
-import { Chess } from 'chess.js';
 import request from 'request';
+import { Game, ChildNode, parsePgn, makePgn } from 'chessops/pgn';
 import { promisify } from 'util';
 
 export interface Source {
@@ -11,8 +11,22 @@ export interface Source {
   dateLastUpdated: Date;
 }
 
+// TODO: use from chessops once merged https://github.com/niklasf/chessops/pull/165
+export const extendMainline = <T>(game: Game<T>, data: T[]) => {
+  let node = game.moves;
+  while (node.children.length) {
+    const child = node.children[0];
+    node = child;
+  }
+  data.forEach(d => {
+    const newNode = new ChildNode(d);
+    node.children = [newNode];
+    node = newNode;
+  });
+};
+
 export function notEmpty<TValue>(
-  value: TValue | null | undefined
+  value: TValue | null | undefined,
 ): value is TValue {
   return value !== null && value !== undefined;
 }
@@ -78,11 +92,12 @@ export function splitGames(multiPgn: string): string[] {
 
 // chess 24 round numbers.
 export function chess24Rounds(pgns: string[], roundbase: string): string[] {
-  const chess = new Chess();
   return pgns.map((pgn, i) => {
-    if (chess.load_pgn(pgn)) {
-      chess.header('Round', roundbase.replace('{}', (i + 1).toString()));
-      return chess.pgn();
+    const games = parsePgn(pgn);
+    if (games.length) {
+      const game = games[0];
+      game.headers.set('Round', roundbase.replace('{}', (i + 1).toString()));
+      return makePgn(game);
     } else return pgn;
   });
 }
@@ -90,7 +105,7 @@ export function chess24Rounds(pgns: string[], roundbase: string): string[] {
 export function filterGames(
   pgns: string[],
   roundQuery?: string | string[],
-  sliceQuery?: string | string[]
+  sliceQuery?: string | string[],
 ): string[] {
   const rounds = parseRoundsQuery(roundQuery);
   const groups: string[][] = Array.from(Array(rounds?.length || 1), () => []);
@@ -134,11 +149,11 @@ export function filterGames(
 }
 
 const parseRoundsQuery = (
-  query?: string | string[]
+  query?: string | string[],
 ): number[][] | undefined => {
   if (!query) return undefined;
   if (!Array.isArray(query)) query = [query];
-  return query.map((r) => r.split('.').map((x) => parseInt(x)));
+  return query.map(r => r.split('.').map(x => parseInt(x)));
 };
 
 const markdownTableRow = (row: string[]) => `| ${row.join(' | ')} |`;
@@ -146,7 +161,7 @@ const markdownTableRow = (row: string[]) => `| ${row.join(' | ')} |`;
 export const markdownTable = (rows: string[][]) =>
   [
     markdownTableRow(rows[0]),
-    markdownTableRow(rows[0].map((_) => '---')),
+    markdownTableRow(rows[0].map(_ => '---')),
     ...rows.slice(1).map(markdownTableRow),
   ].join('\n');
 
@@ -166,7 +181,7 @@ export async function fetchJson<T>(
         body?: string;
         gzip?: boolean;
         headers?: { [key: string]: string };
-      }
+      },
 ): Promise<T> {
   const url = typeof urlOrParams === 'string' ? urlOrParams : urlOrParams.uri;
   const params =
