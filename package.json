@@ -26,7 +26,6 @@
     "@types/chess.js": "^0.10.1",
     "@types/koa__router": "^8.0.1",
     "chardet": "^1.5.0",
-    "chess.js": "^0.11.0",
     "chessops": "^0.13.0",
     "date-fns": "^2.7.0",
     "dayjs": "^1.11.9",

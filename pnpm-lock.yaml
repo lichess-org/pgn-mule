@@ -17,9 +17,6 @@ dependencies:
   chardet:
     specifier: ^1.5.0
     version: 1.6.1
-  chess.js:
-    specifier: ^0.11.0
-    version: 0.11.0
   chessops:
     specifier: ^0.13.0
     version: 0.13.0
@@ -1464,10 +1461,6 @@ packages:
   /chardet@1.6.1:
     resolution: {integrity: sha512-RHP0lMTBsIhM/RxxoOzuTsY7IMNE6/XQ7FKGch0D/aluQzgah0BS4i9ND8wPJdIu7WvMMjk88EXcNi6j8Tdung==}
     deprecated: This version is published by error, use 1.6.0 or 2.0.0
-    dev: false
-
-  /chess.js@0.11.0:
-    resolution: {integrity: sha512-yTpi6XbRMkBtnjSvbt6wEp9Y7JzhJl1MC3GNn67q5ClyccXxCRf5cMPSUg4OblrUapg1kLHm7WzxxEVp20NK1Q==}
     dev: false
 
   /chessops@0.13.0:
