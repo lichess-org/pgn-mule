@@ -82,5 +82,5 @@ replaced with 1.1, 1.2, 1.3 ...
 ## Deploy
 
 ```sh
-pnpm build; rsync -av build node_modules root@radio.lichess.ovh:/home/zulip-pgn-mule/; ssh root@radio.lichess.ovh "systemctl restart zulip-pgn-mule"
+pnpm build; rsync -aLv build node_modules root@radio.lichess.ovh:/home/zulip-pgn-mule/; ssh root@radio.lichess.ovh "chown -R zulip-pgn-mule /home/zulip-pgn-mule/ && systemctl restart zulip-pgn-mule"
 ```

@@ -1,19 +1,13 @@
 [Unit]
-Description=HTTP PGN Mule
+Description=Zulip PGN mule bot
 After=network.target
 
 [Service]
-User=root
-Group=root
-WorkingDirectory=/root/pgn-mule
-EnvironmentFile=-/root/pgn-mule/env
-ExecStart=/usr/bin/node build/server.js
-PrivateTmp=true
-PrivateDevices=true
-DevicePolicy=closed
-ProtectSystem=full
-CapabilityBoundingSet=
-NoNewPrivileges=true
+User=zulip-pgn-mule
+Group=bots
+WorkingDirectory=/home/zulip-pgn-mule
+EnvironmentFile=-/home/zulip-pgn-mule/env
+ExecStart=/home/zulip-pgn-mule/.asdf/shims/node --experimental-default-type=module  build/server.js
 Restart=always
 
 [Install]
