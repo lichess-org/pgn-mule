@@ -129,7 +129,7 @@ async function getGamePgn(
     headers: chessComHeaders,
     gzip: true,
   });
-  return analyseGamePgn(room.name, room.room.timeControl, roundSlug, gameInfo);
+  return analyseGamePgn(event.name, event.room.timeControl, roundSlug, gameInfo);
 }
 
 export default async function fetchChessCom(source: Source): Promise<string> {
