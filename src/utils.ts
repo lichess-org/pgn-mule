@@ -30,11 +30,12 @@ export class Headers {
     public inner: Map<string, string>,
     public context?: string,
   ) {}
-  set = (key: string, value?: string) => {
+  set = (key: string, value?: string | number) => {
     if (value) {
+      if (typeof value === 'number') value = value.toString();
       this.inner.set(key, value);
     } else {
-      console.error(
+      console.log(
         `Missing ${key} in headers${this.context ? ` for ${this.context}` : ''}`,
       );
     }

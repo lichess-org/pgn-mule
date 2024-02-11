@@ -37,8 +37,8 @@ interface Player {
 interface GameRes {
   roundId: number;
   slug: string;
-  blackElo: number;
-  whiteElo: number;
+  blackElo?: number;
+  whiteElo?: number;
   blackTitle?: string;
   whiteTitle?: string;
   white: Player;
@@ -82,20 +82,20 @@ export function analyseGamePgn(
   headers.set('Event', event);
   headers.set('White', gameInfo.game.white.name);
   headers.set('Black', gameInfo.game.black.name);
-  headers.set('WhiteElo', gameInfo.game.whiteElo.toString());
+  headers.set('WhiteElo', gameInfo.game.whiteElo);
   if (gameInfo.game.whiteTitle) {
     headers.set('WhiteTitle', gameInfo.game.whiteTitle);
   }
-  headers.set('WhiteFideId', gameInfo.game.white.fideId.toString());
-  headers.set('BlackElo', gameInfo.game.blackElo.toString());
+  headers.set('WhiteFideId', gameInfo.game.white.fideId);
+  headers.set('BlackElo', gameInfo.game.blackElo);
   if (gameInfo.game.blackTitle) {
     headers.set('BlackTitle', gameInfo.game.blackTitle);
   }
-  headers.set('BlackFideId', gameInfo.game.black.fideId.toString());
+  headers.set('BlackFideId', gameInfo.game.black.fideId);
   headers.set('TimeControl', timeControl);
   headers.set('Round', roundSlug);
   headers.set('Result', gameInfo.game.result);
-  headers.set('Board', gameInfo.game.board.toString());
+  headers.set('Board', gameInfo.game.board);
   const chessGame: Game<PgnNodeData> = {
     headers: headers.inner,
     moves: new Node(),
