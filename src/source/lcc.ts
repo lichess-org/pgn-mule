@@ -95,7 +95,7 @@ export function gameToPgn(
   headers.set('Black', getPlayerName(pairing.black));
   if (tournament.chess960 == 'ANY') {
     // seems to be the way to check if it's a chess960 game
-    headers.set('FEN', positionToFen(game.chess960));
+    headers.set('FEN', positionToFen(game.chess960)!);
   }
   if (pairing.white.title) {
     headers.set('WhiteTitle', pairing.white.title);

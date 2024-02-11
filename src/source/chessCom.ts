@@ -41,6 +41,7 @@ interface GameRes {
   whiteElo?: number;
   blackTitle?: string;
   whiteTitle?: string;
+  fen?: string;
   white: Player;
   black: Player;
   result: string;
@@ -77,17 +78,24 @@ export function analyseGamePgn(
   gameInfo: GameInfo,
 ): BoardWithPgn {
   const headers = emptyHeaders(
-    `cc: Event ${event}, round ${roundSlug} game-info ${JSON.stringify(gameInfo.game)}`,
+    `cc: Event ${event}, round ${roundSlug} slug ${gameInfo.game.slug} game-info ${JSON.stringify(gameInfo.game)}`,
   );
   headers.set('Event', event);
   headers.set('White', gameInfo.game.white.name);
   headers.set('Black', gameInfo.game.black.name);
-  headers.set('WhiteElo', gameInfo.game.whiteElo);
+  if (gameInfo.game.whiteElo) {
+    headers.set('WhiteElo', gameInfo.game.whiteElo);
+  }
   if (gameInfo.game.whiteTitle) {
     headers.set('WhiteTitle', gameInfo.game.whiteTitle);
   }
+  if (gameInfo.game.fen) {
+    headers.set('FEN', gameInfo.game.fen);
+  }
   headers.set('WhiteFideId', gameInfo.game.white.fideId);
-  headers.set('BlackElo', gameInfo.game.blackElo);
+  if (gameInfo.game.blackElo) {
+    headers.set('BlackElo', gameInfo.game.blackElo);
+  }
   if (gameInfo.game.blackTitle) {
     headers.set('BlackTitle', gameInfo.game.blackTitle);
   }

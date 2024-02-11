@@ -30,7 +30,8 @@ export class Headers {
     public inner: Map<string, string>,
     public context?: string,
   ) {}
-  set = (key: string, value?: string | number) => {
+  set = (key: string, value: string | number) => {
+    // this is because types are not correct, as we typed the JSON returned by external APIs
     if (value) {
       if (typeof value === 'number') value = value.toString();
       this.inner.set(key, value);
