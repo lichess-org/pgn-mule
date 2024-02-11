@@ -1,5 +1,11 @@
 import { makePgn, PgnNodeData, Game as ChessGame, Node } from 'chessops/pgn.js';
-import { Source, fetchJson, extendMainline } from '../utils.js';
+import {
+  Source,
+  fetchJson,
+  extendMainline,
+  emptyHeaders,
+  positionToFen,
+} from '../utils.js';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration.js';
 dayjs.extend(duration);
@@ -9,11 +15,11 @@ dayjs.extend(duration);
 // https://1.pool.livechesscloud.com/get/<tournament_id>/tournament.json
 export interface Tournament {
   name: string;
-  timecontrol: string;
+  timecontrol?: string;
   // TODO: what rules are there?
   rules: 'STANDARD' | string;
   // TODO: what does this field contain for chess960 games?
-  chess960: 'STANDARD' | string;
+  chess960: 'STANDARD' | 'ANY';
   rounds: Array<{
     count: number;
     live: 0 | 1;
@@ -81,11 +87,16 @@ export function gameToPgn(
   round: number,
   game: Game,
 ): string {
-  const headers = new Map<string, string>();
+  const headers = emptyHeaders(
+    `lcc: Tournament ${tournament.name}, round ${round} pairing ${JSON.stringify(pairing)}`,
+  );
   headers.set('Event', tournament.name);
   headers.set('White', getPlayerName(pairing.white));
   headers.set('Black', getPlayerName(pairing.black));
-
+  if (tournament.chess960 == 'ANY') {
+    // seems to be the way to check if it's a chess960 game
+    headers.set('FEN', positionToFen(game.chess960));
+  }
   if (pairing.white.title) {
     headers.set('WhiteTitle', pairing.white.title);
   }
@@ -95,7 +106,9 @@ export function gameToPgn(
   headers.set('Result', pairing.result);
   // This field isn't necessarily in PGN format and can hold any random gibberish string as well
   // In case this does not contain the correct data, we can replace it using addReplacement command
-  headers.set('TimeControl', tournament.timecontrol);
+  if (tournament.timecontrol) {
+    headers.set('TimeControl', tournament.timecontrol);
+  }
   headers.set('Round', round.toString());
   headers.set('Board', (boardIndex + 1).toString());
   const mainline = game.moves.map(move => {
@@ -111,7 +124,7 @@ export function gameToPgn(
     return { comments, san };
   });
   const chessGame: ChessGame<PgnNodeData> = {
-    headers: headers,
+    headers: headers.inner,
     moves: new Node(),
   };
   extendMainline(chessGame, mainline);

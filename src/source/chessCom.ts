@@ -2,7 +2,7 @@ import { makePgn, PgnNodeData, Game, Node } from 'chessops/pgn.js';
 import { parseUci } from 'chessops';
 import request from 'request';
 import { userAgent } from '../config.js';
-import { Source, fetchJson, extendMainline } from '../utils.js';
+import { Source, fetchJson, extendMainline, emptyHeaders } from '../utils.js';
 
 const chessComHeaders = {
   'User-Agent': userAgent,
@@ -76,7 +76,9 @@ export function analyseGamePgn(
   roundSlug: string,
   gameInfo: GameInfo,
 ): BoardWithPgn {
-  const headers = new Map<string, string>();
+  const headers = emptyHeaders(
+    `cc: Event ${event}, round ${roundSlug} game-info ${gameInfo.game}`,
+  );
   headers.set('Event', event);
   headers.set('White', gameInfo.game.white.name);
   headers.set('Black', gameInfo.game.black.name);
@@ -94,7 +96,10 @@ export function analyseGamePgn(
   headers.set('Round', roundSlug);
   headers.set('Result', gameInfo.game.result);
   headers.set('Board', gameInfo.game.board.toString());
-  const chessGame: Game<PgnNodeData> = { headers: headers, moves: new Node() };
+  const chessGame: Game<PgnNodeData> = {
+    headers: headers.inner,
+    moves: new Node(),
+  };
   const mainline = gameInfo.moves.map(move => {
     // Chess.com mentions both long algebraic notation and algebraic notation.separated by a underscore '_'
     // We only need either one of it
@@ -129,7 +134,12 @@ async function getGamePgn(
     headers: chessComHeaders,
     gzip: true,
   });
-  return analyseGamePgn(event.room.name, event.room.timeControl, roundSlug, gameInfo);
+  return analyseGamePgn(
+    event.room.name,
+    event.room.timeControl,
+    roundSlug,
+    gameInfo,
+  );
 }
 
 export default async function fetchChessCom(source: Source): Promise<string> {
