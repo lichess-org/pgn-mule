@@ -77,7 +77,7 @@ export function analyseGamePgn(
   gameInfo: GameInfo,
 ): BoardWithPgn {
   const headers = emptyHeaders(
-    `cc: Event ${event}, round ${roundSlug} game-info ${gameInfo.game}`,
+    `cc: Event ${event}, round ${roundSlug} game-info ${JSON.stringify(gameInfo.game)}`,
   );
   headers.set('Event', event);
   headers.set('White', gameInfo.game.white.name);
