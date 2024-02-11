@@ -26,6 +26,7 @@ interface Round {
 }
 interface Room {
   id: number;
+  name: string;
   timeControl: string;
 }
 interface Player {
@@ -54,7 +55,6 @@ interface Move {
 // https://nxt.chessbomb.com/events/api/room/<event_id>
 interface EventInfo {
   room: Room;
-  name: string;
   rounds: Round[];
   games: GameRes[];
 }
@@ -129,7 +129,7 @@ async function getGamePgn(
     headers: chessComHeaders,
     gzip: true,
   });
-  return analyseGamePgn(event.name, event.room.timeControl, roundSlug, gameInfo);
+  return analyseGamePgn(event.room.name, event.room.timeControl, roundSlug, gameInfo);
 }
 
 export default async function fetchChessCom(source: Source): Promise<string> {
