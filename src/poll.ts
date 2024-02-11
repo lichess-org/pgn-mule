@@ -27,7 +27,7 @@ const fetchData = async (source: Source): Promise<string | null> => {
       return await fetchRaw(source);
     }
   } catch (e) {
-    console.log(`[${source.name}]: ${e}`);
+    console.log(`[${source.name}]: `, e);
     return null;
   }
 };
