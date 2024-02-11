@@ -52,7 +52,7 @@ interface Move {
   clock: number;
 }
 // https://nxt.chessbomb.com/events/api/room/<event_id>
-interface RoomInfo {
+interface EventInfo {
   room: Room;
   name: string;
   rounds: Round[];
@@ -118,7 +118,7 @@ export function analyseGamePgn(
 
 async function getGamePgn(
   eventId: string,
-  room: RoomInfo,
+  event: EventInfo,
   roundSlug: string,
   gameSlug: string,
 ): Promise<BoardWithPgn> {
@@ -143,7 +143,7 @@ export default async function fetchChessCom(source: Source): Promise<string> {
   // XXX: We are trying to disguise ourselves as a browser here.
   // TODO: It would make sense to cache this since this data is very unlikely to change.
 
-  const eventInfo: RoomInfo = await fetchJson({
+  const eventInfo: EventInfo = await fetchJson({
     uri: `https://nxt.chessbomb.com/events/api/room/${eventId}`,
     method: 'POST',
     headers: chessComHeaders,
