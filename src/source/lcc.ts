@@ -32,7 +32,7 @@ interface Player {
   lname: string | null;
   title: string | null;
   // the FIDE ID, if filled by the organiser. check on ratings.fide.com
-  fideid?: number;
+  fideid: number | null;
 }
 
 export interface Pairing {
@@ -102,6 +102,12 @@ export function gameToPgn(
   }
   if (pairing.black.title) {
     headers.set('BlackTitle', pairing.black.title);
+  }
+  if (pairing.white.fideid) {
+    headers.set('WhiteFideId', pairing.white.fideid);
+  }
+  if (pairing.black.fideid) {
+    headers.set('WhiteFideId', pairing.black.fideid);
   }
   headers.set('Result', pairing.result);
   // This field isn't necessarily in PGN format and can hold any random gibberish string as well
