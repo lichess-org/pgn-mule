@@ -104,10 +104,10 @@ export function gameToPgn(
     headers.set('BlackTitle', pairing.black.title);
   }
   if (pairing.white.fideid) {
-    headers.set('WhiteFideId', pairing.white.fideid);
+    headers.set('WhiteFideId', pairing.white.fideid.toString());
   }
   if (pairing.black.fideid) {
-    headers.set('BlackFideId', pairing.black.fideid);
+    headers.set('BlackFideId', pairing.black.fideid.toString());
   }
   headers.set('Result', pairing.result);
   // This field isn't necessarily in PGN format and can hold any random gibberish string as well
