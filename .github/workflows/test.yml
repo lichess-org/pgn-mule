@@ -16,6 +16,5 @@ jobs:
           run_install: true
       - name: Use default .env file
         run: cp .env.example .env
-        run: pnpm test
       - name: Run tests
         run: pnpm test
