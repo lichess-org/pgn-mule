@@ -1,0 +1,157 @@
+{
+  "pairing": {
+    "white": {
+      "fname": "Svitlana",
+      "mname": null,
+      "lname": "Pentsak",
+      "title": null,
+      "federation": null,
+      "gender": null,
+      "fideid": 12345678
+    },
+    "black": {
+      "fname": "Dmitrij",
+      "mname": null,
+      "lname": "Kollars",
+      "title": null,
+      "federation": null,
+      "gender": null,
+      "fideid": 87654321
+    },
+    "result": "0-1",
+    "live": false
+  },
+  "boardIndex": 1,
+  "tournament": {
+    "id": "5. Internationales Schach960-Festival 2024",
+    "name": "5. Internationales Schach960-Festival 2024",
+    "location": null,
+    "country": null,
+    "website": null,
+    "rules": "STANDARD",
+    "chess960": "ANY",
+    "timecontrol": null,
+    "rounds": [
+      {
+        "count": 10,
+        "live": 0
+      },
+      {
+        "count": 10,
+        "live": 0
+      },
+      {
+        "count": 10,
+        "live": 0
+      },
+      {
+        "count": 10,
+        "live": 0
+      },
+      {
+        "count": 10,
+        "live": 0
+      },
+      {
+        "count": 10,
+        "live": 0
+      },
+      {
+        "count": 10,
+        "live": 0
+      },
+      {
+        "count": 10,
+        "live": 7
+      },
+      {
+        "count": 0,
+        "live": 0
+      }
+    ],
+    "eboards": [
+      "7488",
+      "7490",
+      "7563",
+      "7486",
+      "7564",
+      "7562",
+      "7565",
+      "7489",
+      "7608",
+      "7491"
+    ]
+  },
+  "round": 2,
+  "game": {
+    "live": false,
+    "serialNr": "7490",
+    "firstMove": 1707506211839,
+    "chess960": 266,
+    "result": "BLACKWIN",
+    "comment": null,
+    "clock": null,
+    "moves": [
+      "e4 1534+25",
+      "e5 1538+22",
+      "Bc4 1535+30",
+      "Nb6 1552+16",
+      "Bb3 1553+13",
+      "Ne6 1527+55",
+      "Ne3 1503+79",
+      "Nd4 1376+181",
+      "Qf1 1486+48",
+      "O-O-O 1393+12",
+      "O-O-O 1390+126",
+      "h5 1393+29",
+      "c3 1338+83",
+      "Nxb3+ 1369+55",
+      "Nxb3 1363+5",
+      "Qh7 1323+75",
+      "f3 1326+69",
+      "d5 1337+16",
+      "exd5 1237+119",
+      "Nxd5 1360+6",
+      "Nxd5 1243+25",
+      "Rxd5 1387+2",
+      "d4 1211+62",
+      "exd4 1304+113",
+      "Qc4 1119+121",
+      "Qh6+ 1242+91",
+      "Kb1 857+293",
+      "Qc6 1195+76",
+      "Qxc6 819+69",
+      "Bxc6 1222+3",
+      "Rxd4 817+32",
+      "Be7 1162+90",
+      "Bg3 768+80",
+      "h4 1170+22",
+      "Rxd5 686+112",
+      "Bxd5 1197+3",
+      "Be5 692+24",
+      "h3 1183+43",
+      "gxh3 584+139",
+      "Bxf3 894+319",
+      "Rg1 586+28",
+      "Be4+ 715+209",
+      "Kc1 584+32",
+      "Rxh3 644+101",
+      "Rxg7 565+49",
+      "Bg6 670+3",
+      "Rg8+ 561+35",
+      "Kd7 697+3",
+      "Bg3 424+167",
+      "Bh4 613+112",
+      "Rb8 264+191",
+      "Bxg3 600+43",
+      "hxg3 292+2",
+      "b6 627+3",
+      "Rb7 282+40",
+      "a5 621+35",
+      "c4 228+85",
+      "Kc8 624+26",
+      "Ra7 247+12",
+      "Kb8 649+4"
+    ]
+  }
+}

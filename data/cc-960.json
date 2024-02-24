@@ -1,0 +1,994 @@
+{
+  "game": {
+    "id": 1716089,
+    "roomId": 10101,
+    "roundId": 101989,
+    "slug": "Bastians_Felix-Kostopoulos_Evaggelos",
+    "revision": 718067978,
+    "whiteId": 298293,
+    "blackId": 11065,
+    "blackElo": 2100,
+    "whiteTitle": "",
+    "blackTitle": "",
+    "startAt": "2024-02-11T10:49:20.475Z",
+    "updateAt": "2024-02-11T12:20:44.525Z",
+    "result": "*",
+    "table": 8,
+    "board": 8,
+    "whiteTeam": "GER",
+    "blackTeam": "GRE",
+    "whiteShortTeam": "GER",
+    "blackShortTeam": "GRE",
+    "timeControl": "1500+30",
+    "sourceType": "full",
+    "fen": "rnkqnbbr/pppppppp/8/8/8/8/PPPPPPPP/RNKQNBBR w KQkq - 0 1",
+    "whiteClock": 1530000,
+    "blackClock": 1530000,
+    "engines": {
+      "_": {
+        "name": "Stockfish 16",
+        "factor": 1,
+        "url": "http://stockfishchess.org/"
+      }
+    },
+    "currentFEN": "8/6p1/3N4/7p/3K3P/1k4n1/1P4P1/8 b - - 5 46",
+    "metadata": {
+      "ceeAnalysis": true
+    },
+    "black": {
+      "id": 11065,
+      "name": "Evaggelos Kostopoulos",
+      "preferredName": "Evaggelos Kostopoulos",
+      "firstName": "Evaggelos",
+      "lastName": "Kostopoulos",
+      "fideId": 4208641,
+      "fed": "GRE",
+      "elo": 2100,
+      "eloRapid": 2100,
+      "eloBlitz": 2126,
+      "title": "",
+      "eloClassical": 2011
+    },
+    "white": {
+      "id": 298293,
+      "name": "Bastians, Felix",
+      "preferredName": "Felix Bastians",
+      "firstName": "Felix",
+      "lastName": "Bastians",
+      "fideId": 24642207,
+      "fed": "GER",
+      "elo": 2170,
+      "title": "",
+      "eloClassical": 2170
+    }
+  },
+  "room": {
+    "id": 10101,
+    "indexId": 1,
+    "slug": "2024-german-chess960-championship",
+    "name": "German Chess960 Championship 2024",
+    "shortName": "German Chess960 Championship 2024",
+    "weight": 50,
+    "startAt": "2024-02-09T17:00:00.000Z",
+    "endAt": "2024-02-11T22:55:00.000Z",
+    "updateAt": "2024-02-11T09:58:38.975Z",
+    "revision": 17287,
+    "eventType": "swiss",
+    "scoring": "none",
+    "tiebreaks": ["bh"],
+    "officialUrl": "https://www.schachclubkreuzberg.de/5-internationales-schach960-festival-2024/",
+    "timeControl": "1500+30"
+  },
+  "moves": [
+    {
+      "id": 500075043,
+      "gameId": 1716089,
+      "ply": 0,
+      "cbn": "e2e4_e4",
+      "clock": 1407000,
+      "time": 153000,
+      "addedAt": "2024-02-11T10:49:20.481Z",
+      "revision": 500075043
+    },
+    {
+      "id": 500075283,
+      "gameId": 1716089,
+      "ply": 1,
+      "cbn": "e7e5_e5",
+      "clock": 1493000,
+      "time": 67000,
+      "addedAt": "2024-02-11T10:50:31.173Z",
+      "revision": 500075283
+    },
+    {
+      "id": 500077032,
+      "gameId": 1716089,
+      "ply": 2,
+      "cbn": "e1f3_Nf3",
+      "clock": 941000,
+      "time": 496000,
+      "addedAt": "2024-02-11T10:58:46.026Z",
+      "revision": 500077032
+    },
+    {
+      "id": 500077489,
+      "gameId": 1716089,
+      "ply": 3,
+      "cbn": "b8c6_Nc6",
+      "clock": 1412000,
+      "time": 110000,
+      "addedAt": "2024-02-11T11:00:37.107Z",
+      "revision": 500077489
+    },
+    {
+      "id": 500077832,
+      "gameId": 1716089,
+      "ply": 4,
+      "cbn": "f1b5_Bb5",
+      "clock": 918000,
+      "time": 53000,
+      "addedAt": "2024-02-11T11:01:27.599Z",
+      "revision": 500077832
+    },
+    {
+      "id": 500079714,
+      "gameId": 1716089,
+      "ply": 5,
+      "cbn": "f7f5_f5",
+      "clock": 1150000,
+      "time": 292000,
+      "addedAt": "2024-02-11T11:06:20.468Z",
+      "revision": 500079714
+    },
+    {
+      "id": 500081843,
+      "gameId": 1716089,
+      "ply": 6,
+      "cbn": "b1c3_Nc3",
+      "clock": 716000,
+      "time": 233000,
+      "addedAt": "2024-02-11T11:10:12.750Z",
+      "revision": 500081843
+    },
+    {
+      "id": 500082523,
+      "gameId": 1716089,
+      "ply": 7,
+      "cbn": "f5e4_fxe4",
+      "clock": 1117000,
+      "time": 63000,
+      "addedAt": "2024-02-11T11:11:23.438Z",
+      "revision": 500082523
+    },
+    {
+      "id": 500084538,
+      "gameId": 1716089,
+      "ply": 8,
+      "cbn": "c3e4_Nxe4",
+      "clock": 582000,
+      "time": 164000,
+      "addedAt": "2024-02-11T11:14:05.017Z",
+      "revision": 500084538
+    },
+    {
+      "id": 500088483,
+      "gameId": 1716089,
+      "ply": 9,
+      "cbn": "d7d5_d5",
+      "clock": 862000,
+      "time": 285000,
+      "addedAt": "2024-02-11T11:18:47.789Z",
+      "revision": 500088483
+    },
+    {
+      "id": 500093825,
+      "gameId": 1716089,
+      "ply": 10,
+      "cbn": "b5c6_Bxc6",
+      "clock": 87000,
+      "time": 525000,
+      "addedAt": "2024-02-11T11:27:32.964Z",
+      "revision": 500093825
+    },
+    {
+      "id": 500093845,
+      "gameId": 1716089,
+      "ply": 11,
+      "cbn": "b7c6_bxc6",
+      "clock": 883000,
+      "time": 7000,
+      "addedAt": "2024-02-11T11:27:43.061Z",
+      "revision": 500093845
+    },
+    {
+      "id": 500093944,
+      "gameId": 1716089,
+      "ply": 12,
+      "cbn": "d1e2_Qe2",
+      "clock": 75000,
+      "time": 43000,
+      "addedAt": "2024-02-11T11:28:23.457Z",
+      "revision": 500093944
+    },
+    {
+      "id": 500094078,
+      "gameId": 1716089,
+      "ply": 13,
+      "cbn": "a7a5_a5",
+      "clock": 867000,
+      "time": 46000,
+      "addedAt": "2024-02-11T11:29:03.851Z",
+      "revision": 500094078
+    },
+    {
+      "id": 500094437,
+      "gameId": 1716089,
+      "ply": 14,
+      "cbn": "e4c3_Nc3",
+      "clock": 42000,
+      "time": 64000,
+      "addedAt": "2024-02-11T11:30:14.551Z",
+      "revision": 500094437
+    },
+    {
+      "id": 500095387,
+      "gameId": 1716089,
+      "ply": 15,
+      "cbn": "e5e4_e4",
+      "clock": 684000,
+      "time": 212000,
+      "addedAt": "2024-02-11T11:33:46.639Z",
+      "revision": 500095387
+    },
+    {
+      "id": 500095388,
+      "gameId": 1716089,
+      "ply": 16,
+      "cbn": "f3e5_Ne5",
+      "clock": 70000,
+      "time": 2000,
+      "addedAt": "2024-02-11T11:33:46.639Z",
+      "revision": 500095388
+    },
+    {
+      "id": 500096780,
+      "gameId": 1716089,
+      "ply": 17,
+      "cbn": "d8d6_Qd6",
+      "clock": 408000,
+      "time": 305000,
+      "addedAt": "2024-02-11T11:38:49.617Z",
+      "revision": 500096780
+    },
+    {
+      "id": 500098501,
+      "gameId": 1716089,
+      "ply": 18,
+      "cbn": "f2f4_f4",
+      "clock": 60000,
+      "time": 41000,
+      "addedAt": "2024-02-11T11:39:30.010Z",
+      "revision": 500098501
+    },
+    {
+      "id": 500099209,
+      "gameId": 1716089,
+      "ply": 19,
+      "cbn": "e4f3_exf3",
+      "clock": 329000,
+      "time": 109000,
+      "addedAt": "2024-02-11T11:41:21.103Z",
+      "revision": 500099209
+    },
+    {
+      "id": 500099307,
+      "gameId": 1716089,
+      "ply": 20,
+      "cbn": "e5f3_Nxf3",
+      "clock": 74000,
+      "time": 15000,
+      "addedAt": "2024-02-11T11:41:41.301Z",
+      "revision": 500099307
+    },
+    {
+      "id": 500099558,
+      "gameId": 1716089,
+      "ply": 21,
+      "cbn": "e8f6_Nf6",
+      "clock": 295000,
+      "time": 64000,
+      "addedAt": "2024-02-11T11:42:41.897Z",
+      "revision": 500099558
+    },
+    {
+      "id": 500099559,
+      "gameId": 1716089,
+      "ply": 22,
+      "cbn": "g1d4_Bd4",
+      "clock": 100000,
+      "time": 5000,
+      "addedAt": "2024-02-11T11:42:41.897Z",
+      "revision": 500099559
+    },
+    {
+      "id": 500100187,
+      "gameId": 1716089,
+      "ply": 23,
+      "cbn": "c6c5_c5",
+      "clock": 202000,
+      "time": 122000,
+      "addedAt": "2024-02-11T11:44:53.181Z",
+      "revision": 500100187
+    },
+    {
+      "id": 500100188,
+      "gameId": 1716089,
+      "ply": 24,
+      "cbn": "d4e5_Be5",
+      "clock": 128000,
+      "time": 2000,
+      "addedAt": "2024-02-11T11:44:53.181Z",
+      "revision": 500100188
+    },
+    {
+      "id": 500100374,
+      "gameId": 1716089,
+      "ply": 25,
+      "cbn": "d6c6_Qc6",
+      "clock": 197000,
+      "time": 35000,
+      "addedAt": "2024-02-11T11:45:23.477Z",
+      "revision": 500100374
+    },
+    {
+      "id": 500100538,
+      "gameId": 1716089,
+      "ply": 26,
+      "cbn": "c1h1_O-O",
+      "clock": 103000,
+      "time": 56000,
+      "addedAt": "2024-02-11T11:46:24.072Z",
+      "revision": 500100538
+    },
+    {
+      "id": 500101725,
+      "gameId": 1716089,
+      "ply": 27,
+      "cbn": "d5d4_d4",
+      "clock": 76000,
+      "time": 151000,
+      "addedAt": "2024-02-11T11:48:55.566Z",
+      "revision": 500101725
+    },
+    {
+      "id": 500102443,
+      "gameId": 1716089,
+      "ply": 28,
+      "cbn": "c3b5_Nb5",
+      "clock": 63000,
+      "time": 71000,
+      "addedAt": "2024-02-11T11:50:06.262Z",
+      "revision": 500102443
+    },
+    {
+      "id": 500102937,
+      "gameId": 1716089,
+      "ply": 29,
+      "cbn": "f8d6_Bd6",
+      "clock": 66000,
+      "time": 40000,
+      "addedAt": "2024-02-11T11:50:46.655Z",
+      "revision": 500102937
+    },
+    {
+      "id": 500103043,
+      "gameId": 1716089,
+      "ply": 30,
+      "cbn": "a1e1_Rae1",
+      "clock": 83000,
+      "time": 9000,
+      "addedAt": "2024-02-11T11:50:56.757Z",
+      "revision": 500103043
+    },
+    {
+      "id": 500103128,
+      "gameId": 1716089,
+      "ply": 31,
+      "cbn": "g8d5_Bd5",
+      "clock": 78000,
+      "time": 18000,
+      "addedAt": "2024-02-11T11:51:06.851Z",
+      "revision": 500103128
+    },
+    {
+      "id": 500103596,
+      "gameId": 1716089,
+      "ply": 32,
+      "cbn": "c2c4_c4",
+      "clock": 64000,
+      "time": 50000,
+      "addedAt": "2024-02-11T11:51:57.348Z",
+      "revision": 500103596
+    },
+    {
+      "id": 500103924,
+      "gameId": 1716089,
+      "ply": 33,
+      "cbn": "d4c3_dxc3",
+      "clock": 58000,
+      "time": 50000,
+      "addedAt": "2024-02-11T11:52:47.844Z",
+      "revision": 500103924
+    },
+    {
+      "id": 500104068,
+      "gameId": 1716089,
+      "ply": 34,
+      "cbn": "b5c3_Nxc3",
+      "clock": 83000,
+      "time": 11000,
+      "addedAt": "2024-02-11T11:52:57.948Z",
+      "revision": 500104068
+    },
+    {
+      "id": 500104131,
+      "gameId": 1716089,
+      "ply": 35,
+      "cbn": "c8h8_O-O",
+      "clock": 81000,
+      "time": 8000,
+      "addedAt": "2024-02-11T11:53:08.044Z",
+      "revision": 500104131
+    },
+    {
+      "id": 500104371,
+      "gameId": 1716089,
+      "ply": 36,
+      "cbn": "c3d5_Nxd5",
+      "clock": 86000,
+      "time": 27000,
+      "addedAt": "2024-02-11T11:53:38.343Z",
+      "revision": 500104371
+    },
+    {
+      "id": 500104530,
+      "gameId": 1716089,
+      "ply": 37,
+      "cbn": "c6d5_Qxd5",
+      "clock": 87000,
+      "time": 23000,
+      "addedAt": "2024-02-11T11:53:58.544Z",
+      "revision": 500104530
+    },
+    {
+      "id": 500104901,
+      "gameId": 1716089,
+      "ply": 38,
+      "cbn": "e5d6_Bxd6",
+      "clock": 59000,
+      "time": 58000,
+      "addedAt": "2024-02-11T11:54:59.138Z",
+      "revision": 500104901
+    },
+    {
+      "id": 500105248,
+      "gameId": 1716089,
+      "ply": 39,
+      "cbn": "c7d6_cxd6",
+      "clock": 81000,
+      "time": 35000,
+      "addedAt": "2024-02-11T11:55:29.437Z",
+      "revision": 500105248
+    },
+    {
+      "id": 500105249,
+      "gameId": 1716089,
+      "ply": 40,
+      "cbn": "e2e6_Qe6+",
+      "clock": 88000,
+      "time": 1000,
+      "addedAt": "2024-02-11T11:55:29.437Z",
+      "revision": 500105249
+    },
+    {
+      "id": 500105530,
+      "gameId": 1716089,
+      "ply": 41,
+      "cbn": "d5e6_Qxe6",
+      "clock": 96000,
+      "time": 16000,
+      "addedAt": "2024-02-11T11:55:49.637Z",
+      "revision": 500105530
+    },
+    {
+      "id": 500105531,
+      "gameId": 1716089,
+      "ply": 42,
+      "cbn": "e1e6_Rxe6",
+      "clock": 116000,
+      "time": 1000,
+      "addedAt": "2024-02-11T11:55:49.637Z",
+      "revision": 500105531
+    },
+    {
+      "id": 500105981,
+      "gameId": 1716089,
+      "ply": 43,
+      "cbn": "a8d8_Rad8",
+      "clock": 95000,
+      "time": 31000,
+      "addedAt": "2024-02-11T11:56:19.935Z",
+      "revision": 500105981
+    },
+    {
+      "id": 500106518,
+      "gameId": 1716089,
+      "ply": 44,
+      "cbn": "d2d4_d4",
+      "clock": 70000,
+      "time": 76000,
+      "addedAt": "2024-02-11T11:57:30.643Z",
+      "revision": 500106518
+    },
+    {
+      "id": 500106697,
+      "gameId": 1716089,
+      "ply": 45,
+      "cbn": "f8e8_Rfe8",
+      "clock": 116000,
+      "time": 9000,
+      "addedAt": "2024-02-11T11:57:40.740Z",
+      "revision": 500106697
+    },
+    {
+      "id": 500107033,
+      "gameId": 1716089,
+      "ply": 46,
+      "cbn": "e6e8_Rxe8+",
+      "clock": 84000,
+      "time": 17000,
+      "addedAt": "2024-02-11T11:58:00.937Z",
+      "revision": 500107033
+    },
+    {
+      "id": 500107047,
+      "gameId": 1716089,
+      "ply": 47,
+      "cbn": "d8e8_Rxe8",
+      "clock": 138000,
+      "time": 7000,
+      "addedAt": "2024-02-11T11:58:11.034Z",
+      "revision": 500107047
+    },
+    {
+      "id": 500107048,
+      "gameId": 1716089,
+      "ply": 48,
+      "cbn": "d4c5_dxc5",
+      "clock": 111000,
+      "time": 3000,
+      "addedAt": "2024-02-11T11:58:11.034Z",
+      "revision": 500107048
+    },
+    {
+      "id": 500107049,
+      "gameId": 1716089,
+      "ply": 49,
+      "cbn": "d6c5_dxc5",
+      "clock": 167000,
+      "time": 0,
+      "addedAt": "2024-02-11T11:58:11.034Z",
+      "revision": 500107049
+    },
+    {
+      "id": 500107354,
+      "gameId": 1716089,
+      "ply": 50,
+      "cbn": "f1e1_Re1",
+      "clock": 124000,
+      "time": 18000,
+      "addedAt": "2024-02-11T11:58:31.230Z",
+      "revision": 500107354
+    },
+    {
+      "id": 500107837,
+      "gameId": 1716089,
+      "ply": 51,
+      "cbn": "e8e1_Rxe1+",
+      "clock": 160000,
+      "time": 36000,
+      "addedAt": "2024-02-11T11:59:11.626Z",
+      "revision": 500107837
+    },
+    {
+      "id": 500107838,
+      "gameId": 1716089,
+      "ply": 52,
+      "cbn": "f3e1_Nxe1",
+      "clock": 153000,
+      "time": 1000,
+      "addedAt": "2024-02-11T11:59:11.626Z",
+      "revision": 500107838
+    },
+    {
+      "id": 500107839,
+      "gameId": 1716089,
+      "ply": 53,
+      "cbn": "g8f7_Kf7",
+      "clock": 190000,
+      "time": 0,
+      "addedAt": "2024-02-11T11:59:11.626Z",
+      "revision": 500107839
+    },
+    {
+      "id": 500108700,
+      "gameId": 1716089,
+      "ply": 54,
+      "cbn": "e1d3_Nd3",
+      "clock": 118000,
+      "time": 65000,
+      "addedAt": "2024-02-11T12:00:12.289Z",
+      "revision": 500108700
+    },
+    {
+      "id": 500108701,
+      "gameId": 1716089,
+      "ply": 55,
+      "cbn": "f6e4_Ne4",
+      "clock": 218000,
+      "time": 0,
+      "addedAt": "2024-02-11T12:00:12.289Z",
+      "revision": 500108701
+    },
+    {
+      "id": 500108882,
+      "gameId": 1716089,
+      "ply": 56,
+      "cbn": "d3e5_Ne5+",
+      "clock": 145000,
+      "time": 4000,
+      "addedAt": "2024-02-11T12:00:22.328Z",
+      "revision": 500108882
+    },
+    {
+      "id": 500108883,
+      "gameId": 1716089,
+      "ply": 57,
+      "cbn": "f7e6_Ke6",
+      "clock": 242000,
+      "time": 7000,
+      "addedAt": "2024-02-11T12:00:22.328Z",
+      "revision": 500108883
+    },
+    {
+      "id": 500108884,
+      "gameId": 1716089,
+      "ply": 58,
+      "cbn": "e5c4_Nc4",
+      "clock": 173000,
+      "time": 2000,
+      "addedAt": "2024-02-11T12:00:22.328Z",
+      "revision": 500108884
+    },
+    {
+      "id": 500108952,
+      "gameId": 1716089,
+      "ply": 59,
+      "cbn": "a5a4_a4",
+      "clock": 252000,
+      "time": 19000,
+      "addedAt": "2024-02-11T12:00:42.524Z",
+      "revision": 500108952
+    },
+    {
+      "id": 500109442,
+      "gameId": 1716089,
+      "ply": 60,
+      "cbn": "g1f1_Kf1",
+      "clock": 180000,
+      "time": 22000,
+      "addedAt": "2024-02-11T12:01:12.823Z",
+      "revision": 500109442
+    },
+    {
+      "id": 500111704,
+      "gameId": 1716089,
+      "ply": 61,
+      "cbn": "e6d5_Kd5",
+      "clock": 123000,
+      "time": 160000,
+      "addedAt": "2024-02-11T12:03:44.345Z",
+      "revision": 500111704
+    },
+    {
+      "id": 500111705,
+      "gameId": 1716089,
+      "ply": 62,
+      "cbn": "c4b6_Nb6+",
+      "clock": 209000,
+      "time": 1000,
+      "addedAt": "2024-02-11T12:03:44.345Z",
+      "revision": 500111705
+    },
+    {
+      "id": 500111722,
+      "gameId": 1716089,
+      "ply": 63,
+      "cbn": "d5d4_Kd4",
+      "clock": 152000,
+      "time": 0,
+      "addedAt": "2024-02-11T12:03:54.438Z",
+      "revision": 500111722
+    },
+    {
+      "id": 500111723,
+      "gameId": 1716089,
+      "ply": 64,
+      "cbn": "b6a4_Nxa4",
+      "clock": 237000,
+      "time": 3000,
+      "addedAt": "2024-02-11T12:03:54.438Z",
+      "revision": 500111723
+    },
+    {
+      "id": 500111724,
+      "gameId": 1716089,
+      "ply": 65,
+      "cbn": "d4d3_Kd3",
+      "clock": 180000,
+      "time": 1000,
+      "addedAt": "2024-02-11T12:03:54.438Z",
+      "revision": 500111724
+    },
+    {
+      "id": 500111894,
+      "gameId": 1716089,
+      "ply": 66,
+      "cbn": "f1e1_Ke1",
+      "clock": 243000,
+      "time": 24000,
+      "addedAt": "2024-02-11T12:04:14.637Z",
+      "revision": 500111894
+    },
+    {
+      "id": 500111895,
+      "gameId": 1716089,
+      "ply": 67,
+      "cbn": "d3c2_Kc2",
+      "clock": 210000,
+      "time": 1000,
+      "addedAt": "2024-02-11T12:04:14.637Z",
+      "revision": 500111895
+    },
+    {
+      "id": 500112212,
+      "gameId": 1716089,
+      "ply": 68,
+      "cbn": "e1e2_Ke2",
+      "clock": 252000,
+      "time": 21000,
+      "addedAt": "2024-02-11T12:04:34.838Z",
+      "revision": 500112212
+    },
+    {
+      "id": 500112516,
+      "gameId": 1716089,
+      "ply": 69,
+      "cbn": "c5c4_c4",
+      "clock": 221000,
+      "time": 19000,
+      "addedAt": "2024-02-11T12:04:55.036Z",
+      "revision": 500112516
+    },
+    {
+      "id": 500113434,
+      "gameId": 1716089,
+      "ply": 70,
+      "cbn": "e2e3_Ke3",
+      "clock": 203000,
+      "time": 79000,
+      "addedAt": "2024-02-11T12:06:15.848Z",
+      "revision": 500113434
+    },
+    {
+      "id": 500114487,
+      "gameId": 1716089,
+      "ply": 71,
+      "cbn": "e4d2_Nd2",
+      "clock": 124000,
+      "time": 127000,
+      "addedAt": "2024-02-11T12:08:27.168Z",
+      "revision": 500114487
+    },
+    {
+      "id": 500114496,
+      "gameId": 1716089,
+      "ply": 72,
+      "cbn": "e3d4_Kd4",
+      "clock": 223000,
+      "time": 10000,
+      "addedAt": "2024-02-11T12:08:37.263Z",
+      "revision": 500114496
+    },
+    {
+      "id": 500114752,
+      "gameId": 1716089,
+      "ply": 73,
+      "cbn": "h7h6_h6",
+      "clock": 57000,
+      "time": 98000,
+      "addedAt": "2024-02-11T12:10:08.193Z",
+      "revision": 500114752
+    },
+    {
+      "id": 500115235,
+      "gameId": 1716089,
+      "ply": 74,
+      "cbn": "h2h4_h4",
+      "clock": 212000,
+      "time": 40000,
+      "addedAt": "2024-02-11T12:10:48.619Z",
+      "revision": 500115235
+    },
+    {
+      "id": 500115245,
+      "gameId": 1716089,
+      "ply": 75,
+      "cbn": "h6h5_h5",
+      "clock": 81000,
+      "time": 6000,
+      "addedAt": "2024-02-11T12:10:58.684Z",
+      "revision": 500115245
+    },
+    {
+      "id": 500116952,
+      "gameId": 1716089,
+      "ply": 76,
+      "cbn": "d4d5_Kd5",
+      "clock": 36000,
+      "time": 206000,
+      "addedAt": "2024-02-11T12:14:20.704Z",
+      "revision": 500116952
+    },
+    {
+      "id": 500117533,
+      "gameId": 1716089,
+      "ply": 77,
+      "cbn": "c2b1_Kb1",
+      "clock": 58000,
+      "time": 53000,
+      "addedAt": "2024-02-11T12:15:21.319Z",
+      "revision": 500117533
+    },
+    {
+      "id": 500117649,
+      "gameId": 1716089,
+      "ply": 78,
+      "cbn": "a2a3_a3",
+      "clock": 40000,
+      "time": 25000,
+      "addedAt": "2024-02-11T12:15:41.522Z",
+      "revision": 500117649
+    },
+    {
+      "id": 500117682,
+      "gameId": 1716089,
+      "ply": 79,
+      "cbn": "b1c2_Kc2",
+      "clock": 81000,
+      "time": 7000,
+      "addedAt": "2024-02-11T12:15:51.618Z",
+      "revision": 500117682
+    },
+    {
+      "id": 500117763,
+      "gameId": 1716089,
+      "ply": 80,
+      "cbn": "a4b6_Nb6",
+      "clock": 38000,
+      "time": 32000,
+      "addedAt": "2024-02-11T12:16:21.918Z",
+      "revision": 500117763
+    },
+    {
+      "id": 500117891,
+      "gameId": 1716089,
+      "ply": 81,
+      "cbn": "c2b3_Kb3",
+      "clock": 84000,
+      "time": 26000,
+      "addedAt": "2024-02-11T12:16:52.216Z",
+      "revision": 500117891
+    },
+    {
+      "id": 500118072,
+      "gameId": 1716089,
+      "ply": 82,
+      "cbn": "a3a4_a4",
+      "clock": 46000,
+      "time": 22000,
+      "addedAt": "2024-02-11T12:17:12.415Z",
+      "revision": 500118072
+    },
+    {
+      "id": 500118605,
+      "gameId": 1716089,
+      "ply": 83,
+      "cbn": "d2f1_Nf1",
+      "clock": 35000,
+      "time": 79000,
+      "addedAt": "2024-02-11T12:18:33.224Z",
+      "revision": 500118605
+    },
+    {
+      "id": 500118606,
+      "gameId": 1716089,
+      "ply": 84,
+      "cbn": "b6c4_Nxc4",
+      "clock": 72000,
+      "time": 5000,
+      "addedAt": "2024-02-11T12:18:33.224Z",
+      "revision": 500118606
+    },
+    {
+      "id": 500118607,
+      "gameId": 1716089,
+      "ply": 85,
+      "cbn": "b3a4_Kxa4",
+      "clock": 64000,
+      "time": 1000,
+      "addedAt": "2024-02-11T12:18:33.224Z",
+      "revision": 500118607
+    },
+    {
+      "id": 500118961,
+      "gameId": 1716089,
+      "ply": 86,
+      "cbn": "d5c5_Kc5",
+      "clock": 52000,
+      "time": 49000,
+      "addedAt": "2024-02-11T12:19:23.727Z",
+      "revision": 500118961
+    },
+    {
+      "id": 500119028,
+      "gameId": 1716089,
+      "ply": 87,
+      "cbn": "a4b3_Kb3",
+      "clock": 88000,
+      "time": 7000,
+      "addedAt": "2024-02-11T12:19:33.823Z",
+      "revision": 500119028
+    },
+    {
+      "id": 500119482,
+      "gameId": 1716089,
+      "ply": 88,
+      "cbn": "c5d4_Kd4",
+      "clock": 40000,
+      "time": 42000,
+      "addedAt": "2024-02-11T12:20:14.229Z",
+      "revision": 500119482
+    },
+    {
+      "id": 500119483,
+      "gameId": 1716089,
+      "ply": 89,
+      "cbn": "f1g3_Ng3",
+      "clock": 113000,
+      "time": 5000,
+      "addedAt": "2024-02-11T12:20:14.229Z",
+      "revision": 500119483
+    },
+    {
+      "id": 500119859,
+      "gameId": 1716089,
+      "ply": 90,
+      "cbn": "c4d6_Nd6",
+      "clock": 40000,
+      "time": 30000,
+      "addedAt": "2024-02-11T12:20:44.589Z",
+      "revision": 500119859
+    }
+  ]
+}
