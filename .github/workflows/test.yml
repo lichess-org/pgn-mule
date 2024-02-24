@@ -4,7 +4,7 @@ on:
   - workflow_dispatch
 
 jobs:
-  install:
+  test:
     runs-on: ubuntu-latest
 
     steps:
