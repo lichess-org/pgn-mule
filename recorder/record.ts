@@ -11,15 +11,20 @@ async function main() {
 }
 
 async function fetchPeriodically() {
+  const file = `${path}/${dateString()}`;
+  try {
   const res = await fetch(url);
   const content = await res.text();
   if (content != lastContent) {
     lastContent = content;
-    const file = `${path}/${dateString()}`;
     await writeFile(file, content);
     console.log(`\n\n${file}\n\n`);
     console.log(content);
     console.log('----------------------------------------------------------');
+  }
+  } catch (e) {
+    console.error(e.message);
+    await writeFile(file + '.error', e.message);
   }
   await sleep(seconds * 1000);
   await fetchPeriodically();

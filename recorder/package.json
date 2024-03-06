@@ -5,10 +5,9 @@
   "license": "MIT",
   "dependencies": {
     "@types/node": "^18",
-    "@types/node-fetch": "^3",
     "node-fetch": "^3",
     "ts-node": "^10",
-    "typescript": "^4"
+    "typescript": "^5"
   },
   "scripts": {
     "record": "ts-node record.ts"
