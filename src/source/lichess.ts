@@ -1,6 +1,6 @@
 import request from 'request';
 import { lichessNoDelayKey } from '../config.js';
-import { Source } from '../utils.js';
+import { Source, sourceHttpTimeout } from '../utils.js';
 import fetchRaw from './raw.js';
 
 export default async function fetchLichess(source: Source): Promise<string> {
@@ -13,6 +13,7 @@ export default async function fetchLichess(source: Source): Promise<string> {
         uri: `https://lichess.org/api/games/export/_ids?key=${lichessNoDelayKey}&clocks=true`,
         method: 'POST',
         body: ids,
+        timeout: sourceHttpTimeout,
       },
       (err, res, body: string) => {
         if (body && !err && res.statusCode === 200) {

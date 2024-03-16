@@ -11,6 +11,8 @@ export interface Source {
   dateLastUpdated: Date;
 }
 
+export const sourceHttpTimeout = 10 * 1000;
+
 // TODO: use from chessops once merged https://github.com/niklasf/chessops/pull/165
 export const extendMainline = <T>(game: Game<T>, data: T[]) => {
   let node = game.moves;
@@ -205,8 +207,10 @@ export async function fetchJson<T>(
       },
 ): Promise<T> {
   const url = typeof urlOrParams === 'string' ? urlOrParams : urlOrParams.uri;
-  const params =
-    typeof urlOrParams === 'string' ? { uri: urlOrParams } : urlOrParams;
+  const params = {
+    ...(typeof urlOrParams === 'string' ? { uri: urlOrParams } : urlOrParams),
+    timeout: sourceHttpTimeout,
+  };
   return new Promise<T>((resolve, reject) => {
     request(params, (err, res, body) => {
       if (!body || err || res.statusCode !== 200) {

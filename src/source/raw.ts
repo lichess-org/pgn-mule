@@ -2,7 +2,7 @@ import chardet from 'chardet';
 import request from 'request';
 import { userAgent, cookie } from '../config.js';
 import { TextDecoder } from 'util';
-import { Source } from '../utils.js';
+import { Source, sourceHttpTimeout } from '../utils.js';
 
 export default async function fetchRaw(source: Source): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -14,6 +14,7 @@ export default async function fetchRaw(source: Source): Promise<string> {
           'User-Agent': userAgent,
         },
         encoding: null,
+        timeout: sourceHttpTimeout,
       },
       (err, res, body?: Buffer) => {
         if (!body) reject('no response body');
