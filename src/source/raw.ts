@@ -30,7 +30,7 @@ export default async function fetchRaw(source: Source): Promise<string> {
           }
         } else if (!body.length) {
           reject('empty response');
-        } else if (res.statusCode !== 404) {
+        } else {
           reject(`ERROR ${res.statusCode} err:${err}`);
         }
       },
