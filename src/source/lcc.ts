@@ -99,7 +99,7 @@ export function gameToPgn(
   }
   
   [pairing.white, pairing.black].map((p, i) => {
-    if (p == null) continue;
+    if (!p) continue;
     let color = i == 0 ? 'White' : 'Black';
     
     headers.set(color, getPlayerName(p));
