@@ -36,8 +36,8 @@ interface Player {
 }
 
 export interface Pairing {
-  white: Player;
-  black: Player;
+  white: Player | null;
+  black: Player | null;
   result: string;
   live: boolean;
 }
@@ -92,24 +92,25 @@ export function gameToPgn(
     `lcc: Tournament ${tournament.name}, round ${round} pairing ${JSON.stringify(pairing)}`,
   );
   headers.set('Event', tournament.name);
-  headers.set('White', getPlayerName(pairing.white));
-  headers.set('Black', getPlayerName(pairing.black));
+  
   if (tournament.chess960 == 'ANY') {
     // seems to be the way to check if it's a chess960 game
     headers.set('FEN', positionToFen(game.chess960)!);
   }
-  if (pairing.white.title) {
-    headers.set('WhiteTitle', pairing.white.title);
-  }
-  if (pairing.black.title) {
-    headers.set('BlackTitle', pairing.black.title);
-  }
-  if (pairing.white.fideid) {
-    headers.set('WhiteFideId', pairing.white.fideid);
-  }
-  if (pairing.black.fideid) {
-    headers.set('BlackFideId', pairing.black.fideid);
-  }
+  
+  [pairing.white, pairing.black].map((p, i) => {
+    if (p == null) continue;
+    const color = i == 0 : 'White' ? 'Black';
+    
+    headers.set(color, getPlayerName(p));
+    if (p.title) {
+      headers.set(`${color}Title`, p.title);
+    }
+    if (p.fideid) {
+      headers.set(`${color}FideId`, p.fideid);
+    }
+  })
+  
   headers.set('Result', pairing.result);
   // This field isn't necessarily in PGN format and can hold any random gibberish string as well
   // In case this does not contain the correct data, we can replace it using addReplacement command
@@ -156,7 +157,6 @@ export default async function fetchLcc(source: Source): Promise<string> {
   let pgn = '';
   for (const [boardIndex, game] of games.entries()) {
     const pairing = roundInfo.pairings[boardIndex];
-    if (!pairing.white || !pairing.black) continue;
     pgn += gameToPgn(pairing, boardIndex, tournament, round, game) + '\n\n';
   }
   return pgn;
