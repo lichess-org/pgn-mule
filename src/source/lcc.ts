@@ -36,8 +36,8 @@ interface Player {
 }
 
 export interface Pairing {
-  white: Player | null;
-  black: Player | null;
+  white: Player;
+  black: Player;
   result: string;
   live: boolean;
 }
