@@ -1,6 +1,6 @@
 import Router from '@koa/router';
 import Koa from 'koa';
-import { publicIP, publicPort } from './config.js';
+import { listenHost, listenPort } from './config.js';
 import { pollURL } from './poll.js';
 import { Redis } from './redis.js';
 import {
@@ -84,7 +84,7 @@ import { Zulip } from './zulip.js';
   });
 
   app.use(router.routes()).use(router.allowedMethods());
-  app.listen(publicPort, publicIP);
+  app.listen(listenPort, listenHost);
 
   await z.messageLoop();
 })();
