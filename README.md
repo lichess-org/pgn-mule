@@ -60,8 +60,23 @@ For a given url, add in: `&shredder=1` which will convert X-Fen to Shredder-Fen
 Add in: `&roundbase=1.{}` and the games will have their 1.{}
 replaced with 1.1, 1.2, 1.3 ...
 
-## Deploy
+## Docker
+
+Build and run locally, with Redis, from a filled-in `.env` (copy `.env.example`; the Zulip credentials must be real for the bot to work):
 
 ```sh
-pnpm build; rsync -aLv build node_modules root@radio.lichess.ovh:/home/zulip-pgn-mule/; ssh root@radio.lichess.ovh "chown -R zulip-pgn-mule /home/zulip-pgn-mule/ && systemctl restart zulip-pgn-mule"
+docker compose -f compose.local.yml up --build
 ```
+
+The server then listens on http://localhost:8080.
+
+## Deploy
+
+CI builds `ghcr.io/lichess-org/pgn-mule` on every push, tagged with the branch name and `sha-<short sha>`, plus `latest` on the default branch.
+
+Production runs `compose.yml` as a Portainer stack behind traefik at https://zulip-pgn-mule.lichess.app, with Redis data in a named volume. Non-secret settings are in `compose.yml`; set these stack variables:
+
+- Required: `PGN_MULE_UA`, `ZULIP_USERNAME`, `ZULIP_API_KEY`.
+- Optional: `PGN_MULE_TAG` (default `latest`; pin a `sha-...` tag to roll back), `PGN_MULE_COOKIE`, `LICHESS_NODELAY_KEY`.
+
+To deploy, either run the Docker workflow manually ("Run workflow" on the default branch), which builds the image and then calls the Portainer webhook stored in the `DEPLOY_WEBHOOK_URL` repository secret, or redeploy the stack in Portainer with "Re-pull image".

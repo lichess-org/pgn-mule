@@ -1,0 +1,27 @@
+# Local test stack: docker compose -f compose.local.yml up --build
+# Reads .env (see .env.example); Zulip credentials must be real for startup.
+services:
+  app:
+    build: .
+    env_file: .env
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      - REDIS_HOST=redis
+    ports:
+      - 8080:8080
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    volumes:
+      - redis-data:/data
+
+volumes:
+  redis-data:
