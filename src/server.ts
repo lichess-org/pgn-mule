@@ -85,7 +85,7 @@ import { Zulip } from './zulip.js';
 
   app.use(router.routes()).use(router.allowedMethods());
   app.listen(listenPort, listenHost);
-  z.say(`pgn-mule ${version} started`, 'zulip', 'bots log');
+  z.say(`pgn-mule ${version} started`);
 
   await z.messageLoop();
 })();
