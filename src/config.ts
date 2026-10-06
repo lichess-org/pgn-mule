@@ -3,7 +3,7 @@ import { envOr, envOrDie } from './utils.js';
 
 configDotEnv();
 
-export const version = '2.1.0';
+export const version = '2.2.0';
 export const cookie = envOrDie('PGN_MULE_COOKIE');
 export const publicScheme = envOrDie('PUBLIC_SCHEME');
 export const publicIP = envOrDie('PUBLIC_IP');
