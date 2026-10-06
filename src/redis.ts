@@ -3,6 +3,7 @@ import { envOr, notEmpty, Replacements, Source } from './utils.js';
 
 export class Redis {
   client = createHandyClient({
+    host: envOr('REDIS_HOST', '127.0.0.1'),
     port: parseInt(envOr('REDIS_PORT', '6379')),
     password: process.env.REDIS_PASSWORD || undefined,
     db: process.env.REDIS_DB,

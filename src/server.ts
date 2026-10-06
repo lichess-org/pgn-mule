@@ -1,6 +1,6 @@
 import Router from '@koa/router';
 import Koa from 'koa';
-import { publicIP, publicPort } from './config.js';
+import { listenHost, listenPort, version } from './config.js';
 import { pollURL } from './poll.js';
 import { Redis } from './redis.js';
 import {
@@ -84,7 +84,8 @@ import { Zulip } from './zulip.js';
   });
 
   app.use(router.routes()).use(router.allowedMethods());
-  app.listen(publicPort, publicIP);
+  app.listen(listenPort, listenHost);
+  z.say(`pgn-mule ${version} started`, 'zulip', 'bots log');
 
   await z.messageLoop();
 })();

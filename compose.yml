@@ -1,0 +1,57 @@
+# Production stack for Portainer. Set the stack variables below in Portainer.
+# PUBLIC_* only build the URLs advertised in Zulip; traefik serves them on
+# https/443 and forwards to the app on 8080.
+services:
+  app:
+    image: ghcr.io/lichess-org/pgn-mule:${PGN_MULE_TAG:-latest}
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - default
+      - frontend
+    environment:
+      - REDIS_HOST=redis
+      - PUBLIC_IP=zulip-pgn-mule.lichess.app
+      - PUBLIC_SCHEME=https
+      - PUBLIC_PORT=443
+      - PGN_MULE_COOKIE=${PGN_MULE_COOKIE:-}
+      - LICHESS_NODELAY_KEY=${LICHESS_NODELAY_KEY:-lichessNoDelayKey}
+      - SLOW_POLL_RATE_SECONDS=60
+      - MINUTES_INACTIVITY_SLOWDOWN=10
+      - MINUTES_INACTIVITY_DIE=120
+      - DELAY_MAX_SECONDS=3600
+      - PGN_MULE_UA=${PGN_MULE_UA:?required}
+      - ZULIP_USERNAME=${ZULIP_USERNAME:?required}
+      - ZULIP_API_KEY=${ZULIP_API_KEY:?required}
+      - ZULIP_REALM=https://hq.lichess.ovh
+      - ZULIP_STREAM=content-broadcast
+      - ZULIP_TOPIC=mule
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=frontend
+      - traefik.http.services.pgn-mule.loadbalancer.server.port=8080
+      - traefik.http.routers.pgn-mule.rule=Host(`zulip-pgn-mule.lichess.app`)
+      - traefik.http.routers.pgn-mule.entrypoints=websecure
+      - traefik.http.routers.pgn-mule.tls=true
+      - traefik.http.routers.pgn-mule.tls.certresolver=myresolver
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    volumes:
+      - redis-data:/data
+
+volumes:
+  redis-data:
+
+networks:
+  frontend:
+    external: true
