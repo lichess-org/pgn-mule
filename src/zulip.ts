@@ -51,11 +51,11 @@ export class Zulip {
       emoji_name: name,
     });
 
-  say = async (text: string) =>
+  say = async (text: string, stream = zulipStream, topic = zulipTopic) =>
     await this.z.messages.send({
-      to: zulipStream,
+      to: stream,
       type: 'stream',
-      subject: zulipTopic,
+      subject: topic,
       content: text,
     });
 
