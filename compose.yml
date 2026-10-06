@@ -36,6 +36,37 @@ services:
       - traefik.http.routers.pgn-mule.tls=true
       - traefik.http.routers.pgn-mule.tls.certresolver=myresolver
 
+  dozzle:
+    image: amir20/dozzle:latest
+    restart: unless-stopped
+    environment:
+      - DOZZLE_BASE=/logs
+      - DOZZLE_FILTER=label=com.docker.stack.namespace=${STACK_NAME:-zulip-pgn-mule}
+      - DOZZLE_NO_ANALYTICS=true
+      - DOZZLE_DISABLE_SETUP_WIZARD=true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - default
+      - frontend
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=frontend
+      - traefik.http.services.pgn-mule-dozzle.loadbalancer.server.port=8080
+      - traefik.http.routers.pgn-mule-dozzle.rule=Host(`zulip-pgn-mule.lichess.app`) && PathPrefix(`/logs`)
+      - traefik.http.routers.pgn-mule-dozzle.entrypoints=websecure
+      - traefik.http.routers.pgn-mule-dozzle.tls=true
+      - traefik.http.routers.pgn-mule-dozzle.tls.certresolver=myresolver
+      - traefik.http.routers.pgn-mule-dozzle.middlewares=authentik@file
+      - traefik.http.routers.pgn-mule-dozzle.priority=100
+      - traefik.http.routers.pgn-mule-dozzle.service=pgn-mule-dozzle
+      - traefik.http.routers.pgn-mule-outpost.rule=Host(`zulip-pgn-mule.lichess.app`) && PathPrefix(`/outpost.goauthentik.io`)
+      - traefik.http.routers.pgn-mule-outpost.entrypoints=websecure
+      - traefik.http.routers.pgn-mule-outpost.tls=true
+      - traefik.http.routers.pgn-mule-outpost.tls.certresolver=myresolver
+      - traefik.http.routers.pgn-mule-outpost.priority=200
+      - traefik.http.routers.pgn-mule-outpost.service=authentik-server@file
+
   redis:
     image: redis:7-alpine
     restart: unless-stopped
