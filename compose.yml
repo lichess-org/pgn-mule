@@ -6,8 +6,7 @@ services:
     image: ghcr.io/lichess-org/pgn-mule:${PGN_MULE_TAG:-latest}
     restart: unless-stopped
     depends_on:
-      redis:
-        condition: service_healthy
+      - redis
     networks:
       - default
       - frontend
