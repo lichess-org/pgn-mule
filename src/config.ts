@@ -8,6 +8,10 @@ export const cookie = envOrDie('PGN_MULE_COOKIE');
 export const publicScheme = envOrDie('PUBLIC_SCHEME');
 export const publicIP = envOrDie('PUBLIC_IP');
 export const publicPort = parseInt(envOrDie('PUBLIC_PORT'));
+const isDefaultPort =
+  (publicScheme === 'https' && publicPort === 443) ||
+  (publicScheme === 'http' && publicPort === 80);
+export const publicBaseUrl = `${publicScheme}://${publicIP}${isDefaultPort ? '' : `:${publicPort}`}`;
 export const listenHost = envOr('LISTEN_HOST', publicIP);
 export const listenPort = parseInt(envOr('LISTEN_PORT', String(publicPort)));
 export const slowPollRate = parseFloat(envOrDie('SLOW_POLL_RATE_SECONDS'));

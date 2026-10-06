@@ -2,9 +2,7 @@ import isURL from 'validator/lib/isURL.js';
 import zulip from 'zulip-js';
 import {
   maxDelaySeconds,
-  publicIP,
-  publicPort,
-  publicScheme,
+  publicBaseUrl,
   version,
   zulipUsername,
   zulipApiKey,
@@ -226,7 +224,7 @@ export class Zulip {
           ['Name', 'Destination', 'Freq', 'Delay', 'Source'],
           ...sources.map(s => [
             s.name,
-            `${publicScheme}://${publicIP}:${publicPort}/${s.name}`,
+            `${publicBaseUrl}/${s.name}`,
             `1/${s.updateFreqSeconds}s`,
             `${s.delaySeconds}s`,
             s.url,
@@ -369,10 +367,10 @@ const formatSource = (s: Source) =>
   [
     `\`${s.name}\``,
     `Source URL: ${s.url}`,
-    `Exposed URL: ${publicScheme}://${publicIP}:${publicPort}/${s.name}`,
+    `Exposed URL: ${publicBaseUrl}/${s.name}`,
     `Update frequency: once every ${s.updateFreqSeconds} seconds`,
     `Delay: ${s.delaySeconds} seconds`,
   ].join('\n');
 
 const formatManySources = (sources: Source[]) =>
-  `all of them -> ${publicScheme}://${publicIP}:${publicPort}/${sources.map(s => s.name).join('/')}`;
+  `all of them -> ${publicBaseUrl}/${sources.map(s => s.name).join('/')}`;
