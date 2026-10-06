@@ -28,6 +28,7 @@ services:
       - ZULIP_STREAM=content-broadcast
       - ZULIP_TOPIC=mule
     labels:
+      - dev.dozzle.icon=a-mule
       - traefik.enable=true
       - traefik.docker.network=frontend
       - traefik.http.services.pgn-mule.loadbalancer.server.port=8080
