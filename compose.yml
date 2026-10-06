@@ -24,7 +24,7 @@ services:
       - PGN_MULE_UA=${PGN_MULE_UA:?required}
       - ZULIP_USERNAME=${ZULIP_USERNAME:?required}
       - ZULIP_API_KEY=${ZULIP_API_KEY:?required}
-      - ZULIP_REALM=https://hq.lichess.ovh
+      - ZULIP_REALM=${ZULIP_REALM:?required}
       - ZULIP_STREAM=content-broadcast
       - ZULIP_TOPIC=mule
     labels:
